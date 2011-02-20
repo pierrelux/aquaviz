@@ -35,8 +35,6 @@ vtkVertexGlyphFilter.h
 -
 vtkCommand.h
 -
-vtkCallbackCommand.h
--
 vtkProgrammableFilter.h
 -
 vtksys/SystemTools.hxx
@@ -46,6 +44,10 @@ thread
 iostream
 -
 functional
+-
+X11/Xlib.h
+-
+GL/glx.h
 -
 
 /usr/include/vtk-5.4/vtkAbstractArray.h
@@ -97,10 +99,6 @@ vtkObjectFactory.h
 /usr/include/vtk-5.4/vtkArrayIteratorTemplateImplicit.txx
 vtkArrayIteratorTemplate.txx
 /usr/include/vtk-5.4/vtkArrayIteratorTemplate.txx
-
-/usr/include/vtk-5.4/vtkCallbackCommand.h
-vtkCommand.h
-/usr/include/vtk-5.4/vtkCommand.h
 
 /usr/include/vtk-5.4/vtkCellLinks.h
 vtkObject.h
