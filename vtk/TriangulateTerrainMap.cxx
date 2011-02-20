@@ -13,6 +13,7 @@
 #include <vtkVertexGlyphFilter.h>
 
 #include <vtkCommand.h>
+#include <vtkCallbackCommand.h>
 #include <vtkProgrammableFilter.h>
 #include <vtksys/SystemTools.hxx>
 
@@ -20,9 +21,8 @@
 #include <iostream>
 #include <functional>
 
-  #include <X11/Xlib.h>
-  #include <GL/glx.h>
 
+vtkSmartPointer<vtkRenderer> renderer;
 vtkSmartPointer<vtkRenderWindow> renderWindow;
 
 /**
@@ -31,6 +31,15 @@ vtkSmartPointer<vtkRenderWindow> renderWindow;
  */
 class Terrain {
 public:
+    static void progress_cb(vtkObject* caller,
+                    long unsigned int eventId,
+                    void* clientData, void* callData )
+    {
+      std::cout << "EndEvent" << std::endl;
+      //renderer->Render();
+      renderWindow->Render();
+    }
+
 	Terrain() {
 		// Generate a set of points
 		points = generateRandomPoints(10);
@@ -53,6 +62,13 @@ public:
 		triangulatedActor->SetMapper(triangulatedMapper);
 		triangulatedActor->RotateX(45);
 
+		 vtkSmartPointer<vtkCallbackCommand> testCallback =
+		 vtkSmartPointer<vtkCallbackCommand>::New();
+		 testCallback->SetCallback (Terrain::progress_cb );
+		 testCallback->SetClientData(this);
+
+		 delaunay->AddObserver(vtkCommand::EndEvent, testCallback);
+
 	}
 	virtual ~Terrain() {
 	}
@@ -71,7 +87,7 @@ public:
 	void setPoints(vtkPoints* points) {
 		this->points = points;
 		polydata->SetPoints(points);
-		polydata->Modified();
+		//polydata->Modified();
 		delaunay->Update();
 	}
 
@@ -115,13 +131,7 @@ public:
 			std::cout << "Generating points" << std::endl;
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-			renderWindow->MakeCurrent();
-
 			terrain.setPoints(terrain.generateRandomPoints(10));
-
-			renderWindow->Render();
-
-		    glXMakeCurrent((Display*)renderWindow->GetGenericDisplayId(), None, NULL);
 		}
 	}
 
@@ -131,7 +141,7 @@ public:
 
 int main(int, char *[]) {
 	// Create renderer
-	vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+	renderer = vtkSmartPointer<vtkRenderer>::New();
 
 	// Add renderer to render window
 	renderWindow = vtkSmartPointer<
@@ -152,13 +162,10 @@ int main(int, char *[]) {
 	// Render and interact
 	renderWindow->Render();
 
-	glXMakeCurrent((Display*)renderWindow->GetGenericDisplayId(), None, NULL);
-
 	// Start thread
 	std::thread t((PointsGenerator(terrain, renderer)));
 
-	  vtksys::SystemTools::Delay(10000);
-	//renderWindowInteractor->Start();
+	renderWindowInteractor->Start();
 
 	return EXIT_SUCCESS;
 }

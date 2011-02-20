@@ -13,6 +13,7 @@ CMakeFiles/TriangulateTerrainMap.dir/TriangulateTerrainMap.cxx.o
  /usr/include/vtk-5.4/vtkArrayIteratorTemplate.h
  /usr/include/vtk-5.4/vtkArrayIteratorTemplate.txx
  /usr/include/vtk-5.4/vtkArrayIteratorTemplateImplicit.txx
+ /usr/include/vtk-5.4/vtkCallbackCommand.h
  /usr/include/vtk-5.4/vtkCellLinks.h
  /usr/include/vtk-5.4/vtkCellType.h
  /usr/include/vtk-5.4/vtkCellTypes.h
