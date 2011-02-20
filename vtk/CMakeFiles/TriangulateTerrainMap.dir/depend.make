@@ -89,12 +89,4 @@ CMakeFiles/TriangulateTerrainMap.dir/TriangulateTerrainMap.cxx.o: /usr/include/v
 CMakeFiles/TriangulateTerrainMap.dir/TriangulateTerrainMap.cxx.o: /usr/include/vtk-5.4/vtkstd/utility
 CMakeFiles/TriangulateTerrainMap.dir/TriangulateTerrainMap.cxx.o: /usr/include/vtk-5.4/vtksys/Configure.h
 CMakeFiles/TriangulateTerrainMap.dir/TriangulateTerrainMap.cxx.o: /usr/include/vtk-5.4/vtksys/Configure.hxx
-CMakeFiles/TriangulateTerrainMap.dir/TriangulateTerrainMap.cxx.o: /usr/include/vtk-5.4/vtksys/String.hxx
-CMakeFiles/TriangulateTerrainMap.dir/TriangulateTerrainMap.cxx.o: /usr/include/vtk-5.4/vtksys/SystemTools.hxx
-CMakeFiles/TriangulateTerrainMap.dir/TriangulateTerrainMap.cxx.o: /usr/include/vtk-5.4/vtksys/ios/iosfwd
-CMakeFiles/TriangulateTerrainMap.dir/TriangulateTerrainMap.cxx.o: /usr/include/vtk-5.4/vtksys/ios/iostream
-CMakeFiles/TriangulateTerrainMap.dir/TriangulateTerrainMap.cxx.o: /usr/include/vtk-5.4/vtksys/stl/map
-CMakeFiles/TriangulateTerrainMap.dir/TriangulateTerrainMap.cxx.o: /usr/include/vtk-5.4/vtksys/stl/string
-CMakeFiles/TriangulateTerrainMap.dir/TriangulateTerrainMap.cxx.o: /usr/include/vtk-5.4/vtksys/stl/string.hxx
-CMakeFiles/TriangulateTerrainMap.dir/TriangulateTerrainMap.cxx.o: /usr/include/vtk-5.4/vtksys/stl/vector
 

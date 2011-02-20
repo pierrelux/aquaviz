@@ -14,16 +14,30 @@
 
 #include <vtkCommand.h>
 #include <vtkProgrammableFilter.h>
-#include <vtksys/SystemTools.hxx>
 
 #include <thread>
 #include <iostream>
 #include <functional>
 
-  #include <X11/Xlib.h>
-  #include <GL/glx.h>
+class RenderingRefresher: public vtkCommand {
+public:
+	vtkTypeRevisionMacro(RenderingRefresher, vtkCommand);
+	static RenderingRefresher *New() {
+		return new RenderingRefresher;
+	}
 
-vtkSmartPointer<vtkRenderWindow> renderWindow;
+	void Execute(vtkObject *caller, unsigned long vtkNotUsed(eventId),
+			void *vtkNotUsed(callData)) {
+		std::cout << "timer callback" << std::endl;
+
+		vtkRenderWindowInteractor *iren =
+				static_cast<vtkRenderWindowInteractor*> (caller);
+
+		iren->Render();
+
+	}
+};
+vtkCxxRevisionMacro(RenderingRefresher, "$Revision: 1.1 $");
 
 /**
  * VTK Does not allow vtkActor do be subclassed easily.
@@ -71,8 +85,8 @@ public:
 	void setPoints(vtkPoints* points) {
 		this->points = points;
 		polydata->SetPoints(points);
-		polydata->Modified();
 		delaunay->Update();
+		polydata->Modified();
 	}
 
 	/**
@@ -113,15 +127,8 @@ public:
 	void operator()() {
 		while (1) {
 			std::cout << "Generating points" << std::endl;
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-			renderWindow->MakeCurrent();
-
+			std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 			terrain.setPoints(terrain.generateRandomPoints(10));
-
-			renderWindow->Render();
-
-		    glXMakeCurrent((Display*)renderWindow->GetGenericDisplayId(), None, NULL);
 		}
 	}
 
@@ -134,7 +141,7 @@ int main(int, char *[]) {
 	vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
 
 	// Add renderer to render window
-	renderWindow = vtkSmartPointer<
+	vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<
 			vtkRenderWindow>::New();
 	renderWindow->AddRenderer(renderer);
 
@@ -149,16 +156,24 @@ int main(int, char *[]) {
 
 	renderer->SetBackground(.5, .5, 1.0);
 
-	// Render and interact
-	renderWindow->Render();
-
-	glXMakeCurrent((Display*)renderWindow->GetGenericDisplayId(), None, NULL);
-
 	// Start thread
 	std::thread t((PointsGenerator(terrain, renderer)));
 
-	  vtksys::SystemTools::Delay(10000);
-	//renderWindowInteractor->Start();
+	// Render and interact
+	renderWindow->Render();
+
+	// Initialize must be called prior to creating timer events.
+	renderWindowInteractor->Initialize();
+
+	// Sign up to receive TimerEvent
+	vtkSmartPointer<RenderingRefresher> cb =
+			vtkSmartPointer<RenderingRefresher>::New();
+	renderWindowInteractor->AddObserver(vtkCommand::TimerEvent, cb);
+
+	int timerId = renderWindowInteractor->CreateRepeatingTimer(100);
+	std::cout << "timerId: " << timerId << std::endl;
+
+	renderWindowInteractor->Start();
 
 	return EXIT_SUCCESS;
 }
