@@ -55,6 +55,10 @@ public:
 	    return posesTimestamped.end();
 	}
 
+	const_iterator find (const unsigned& timestamp) const {
+		return posesTimestamped.find(timestamp);
+	}
+
 private:
 	std::map<unsigned, Poses > posesTimestamped;
 };

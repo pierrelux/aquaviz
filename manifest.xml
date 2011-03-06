@@ -1,0 +1,17 @@
+<package>
+  <description brief="imu_visualization">
+
+     imu_visualization
+
+  </description>
+  <author>Pierre-Luc Bacon</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/imu_visualization</url>
+  <depend package="geometry_msgs"/>
+  <depend package="visualization_msgs"/>
+  <depend package="roscpp"/>
+
+</package>
+
+
