@@ -1,13 +1,13 @@
 #include <QApplication>
-#include "SimpleViewUI.h"
+#include "TerrainViewUI.h"
  
 int main( int argc, char** argv )
 {
   // QT Stuff
   QApplication app( argc, argv );
  
-  SimpleView mySimpleView;
-  mySimpleView.show();
+  TerrainView myTerrainView;
+  myTerrainView.show();
  
   return app.exec();
 }
