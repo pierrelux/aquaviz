@@ -22,10 +22,24 @@ LandmarkParser::LandmarkParser(const std::string& filename) {
 		buffer >> y;
 		buffer >> z;
 
-		landmarks.push_back(Point3D(x,y,z));
+		unsigned key;
+		buffer >> key;
+
+		std::map<unsigned, std::vector<Point3D> >::iterator it = landmarks.find(key);
+		if (it == landmarks.end()) {
+			std::vector<Point3D> points;
+			points.push_back(Point3D(x,y,z));
+
+			landmarks.insert(std::pair<unsigned, std::vector<Point3D> >(key, points));
+		} else {
+			(it->second).push_back(Point3D(x, y, z));
+		}
+
 	}
 }
 
 LandmarkParser::~LandmarkParser() {
 	// TODO Auto-generated destructor stub
 }
+
+

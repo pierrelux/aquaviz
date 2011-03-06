@@ -9,6 +9,7 @@
 #define POSEPARSER_H_
 
 #include <string>
+#include <map>
 #include <vector>
 
 class PoseParser {
@@ -43,23 +44,19 @@ public:
 		} position;
 	};
 
-	typedef std::vector<Pose3D>::const_iterator const_iterator;
-	typedef std::vector<Pose3D>::size_type size_type;
+	typedef std::vector<Pose3D> Poses;
+	typedef std::map<unsigned, Poses >::const_iterator const_iterator;
 
 	const_iterator begin() const {
-	    return poses.begin();
+	    return posesTimestamped.begin();
 	}
 
 	const_iterator end() const {
-	    return poses.end();
-	}
-
-	size_type size() const {
-		return poses.size();
+	    return posesTimestamped.end();
 	}
 
 private:
-	std::vector<Pose3D> poses;
+	std::map<unsigned, Poses > posesTimestamped;
 };
 
 #endif /* POSEPARSER_H_ */
