@@ -1,30 +1,58 @@
 #ifndef TerrainViewUI_H
 #define TerrainViewUI_H
- 
+
 #include "vtkSmartPointer.h"
 #include <vtkPoints.h>
 #include <vtkMath.h>
+#include <vtkMutexLock.h>
+#include <vtkDelaunay2D.h>
+#include <vtkCommand.h>
+#include <vtkPolyData.h>
+#include <vtkRenderWindow.h>
+
 #include <QMainWindow>
- 
+
 // Forward Qt class declarations
 class Ui_TerrainView;
- 
-class TerrainView : public QMainWindow
-{
-  Q_OBJECT
+
+class TerrainView: public QMainWindow {
+Q_OBJECT
 public:
- 
-  // Constructor/Destructor
-  TerrainView(); 
-  ~TerrainView() {};
- 
+
+	// Constructor/Destructor
+	TerrainView();
+	~TerrainView() {
+	}
+	;
+
+	/**
+	 * Insert a new point
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
+	void insertPoint(double x, double y, double z);
+
+	/**
+	 * Clear the vertices
+	 * @postcondition The set of vertices will be cleared.
+	 */
+	void clear();
+
+	/**
+	 * Flush the points to the display.
+	 * @postcondition The triangulation will be computed from the
+	 * set of points and the rendering thread will render the triangulation.
+	 */
+	void flush();
+
 public slots:
- 
-  virtual void slotExit();
-  virtual void slotConnect();
- 
+
+	virtual void slotExit();
+	virtual void slotConnect();
+
 protected:
- 	/**
+	/**
 	 * Generate a set of random points.
 	 * For testing purpose only.
 	 * @param gridSize The desired grid size.
@@ -43,12 +71,37 @@ protected:
 
 		return points;
 	}
+
 protected slots:
- 
+
 private:
- 
-  // Designer form
-  Ui_TerrainView *ui;
+	vtkSmartPointer<vtkPoints> points;
+	vtkSmartPointer<vtkPolyData> polydata;
+	vtkSmartPointer<vtkDelaunay2D> delaunay;
+
+	vtkMutexLock* renderLock;
+
+	// Designer form
+	Ui_TerrainView *ui;
+
+	class RenderingTimerCallback: public vtkCommand {
+	public:
+		RenderingTimerCallback(TerrainView* parent, vtkSmartPointer<vtkRenderWindow> renderWindow) :
+			parent(parent),
+		    renderWindow(renderWindow) {};
+		virtual ~RenderingTimerCallback() {};
+
+		virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long eventId,
+				void *vtkNotUsed(callData)) {
+			//std::cout << "refreshing" << std::endl;
+			parent->renderLock->Lock();
+				renderWindow->Render();
+			parent->renderLock->Unlock();
+		}
+	private:
+		TerrainView* parent;
+		vtkSmartPointer<vtkRenderWindow> renderWindow;
+	};
 };
- 
+
 #endif // TerrainViewUI_H
