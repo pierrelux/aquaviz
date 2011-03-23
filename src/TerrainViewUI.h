@@ -9,6 +9,8 @@
 #include <vtkCommand.h>
 #include <vtkPolyData.h>
 #include <vtkRenderWindow.h>
+#include <vtkTransform.h>
+#include <vtkActor.h>
 
 #include <QMainWindow>
 
@@ -32,6 +34,26 @@ public:
 	 * @param z
 	 */
 	void insertPoint(double x, double y, double z);
+
+
+	/**
+	 * The quaternion that represents the rotation from the
+	 * global frame to the IMU frame on the robot.
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @param w
+	 */
+	void setIMURotation(double x, double y, double z, double w);
+
+	/**
+	 * The position of the IMU frame in
+     * global coordinates (in meters).
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
+	void setIMUPosition(double x, double y, double z);
 
 	/**
 	 * Clear the vertices
@@ -80,6 +102,8 @@ private:
 	vtkSmartPointer<vtkDelaunay2D> delaunay;
 
 	vtkMutexLock* renderLock;
+	vtkSmartPointer<vtkTransform> transform;
+	vtkSmartPointer<vtkActor> cubeActor;
 
 	// Designer form
 	Ui_TerrainView *ui;

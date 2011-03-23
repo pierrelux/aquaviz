@@ -4,10 +4,13 @@
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkSmartPointer.h>
+#include <vtkCubeSource.h>
 #include <vtkPolyDataMapper.h>
-
+#include <vtkCamera.h>
 #include <qinputdialog.h>
-
+#include <vtkProperty.h>
+#include <vtkAxesActor.h>
+#include <vtkInteractorStyleTerrain.h>
 
 // Constructor
 TerrainView::TerrainView() {
@@ -32,16 +35,47 @@ TerrainView::TerrainView() {
 			vtkPolyDataMapper>::New();
 	triangulatedMapper->SetInputConnection(delaunay->GetOutputPort());
 
-	// Create actor
+	// Create delaunay actor
 	vtkSmartPointer<vtkActor> triangulatedActor =
 			vtkSmartPointer<vtkActor>::New();
 	triangulatedActor->SetMapper(triangulatedMapper);
 	triangulatedActor->RotateX(-75);
 
+	// Create robot model
+	vtkSmartPointer<vtkCubeSource> cubeSource =
+			vtkSmartPointer<vtkCubeSource>::New();
+	cubeSource->SetYLength(0.10);
+	cubeSource->SetXLength(0.25);
+	cubeSource->SetZLength(0.50);
+
+	// Create a cube mapper and actor.
+	transform = vtkSmartPointer<vtkTransform>::New();
+
+	vtkSmartPointer<vtkPolyDataMapper> cubeMapper = vtkSmartPointer<
+			vtkPolyDataMapper>::New();
+	cubeMapper->SetInputConnection(cubeSource->GetOutputPort());
+	cubeActor = vtkSmartPointer<vtkActor>::New();
+	cubeActor->SetMapper(cubeMapper);
+	cubeActor->GetProperty()->SetColor(1,1,0);
+	cubeActor->SetUserTransform(transform);
+
+	// Create Axes Actor
+	vtkSmartPointer<vtkAxesActor> axes = vtkSmartPointer<vtkAxesActor>::New();
+
+	// Create camera for renderer
+	vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
+	//camera->SetUserTransform(transform);
+	camera->SetPosition(0, 0, 100);
+	camera->SetFocalPoint(0, 0, 0);
+
 	// VTK Renderer
 	vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+	renderer->AddActor(cubeActor);
 	renderer->AddActor(triangulatedActor);
+	renderer->AddActor(axes);
+
 	renderer->SetBackground(.5, .5, 1.0);
+	renderer->SetActiveCamera(camera);
 
 	// VTK/Qt
 	this->ui->qvtkWidget->GetRenderWindow()->AddRenderer(renderer);
@@ -50,11 +84,16 @@ TerrainView::TerrainView() {
 	vtkRenderWindowInteractor* interactor =
 			this->ui->qvtkWidget->GetInteractor();
 
-	vtkSmartPointer<RenderingTimerCallback> callback = new RenderingTimerCallback(this,
-			                                                              this->ui->qvtkWidget->GetRenderWindow());
+	vtkSmartPointer<RenderingTimerCallback> callback =
+			new RenderingTimerCallback(this,
+					this->ui->qvtkWidget->GetRenderWindow());
 	interactor->AddObserver(vtkCommand::TimerEvent, callback);
 
 	interactor->CreateRepeatingTimer(100);
+
+	// Set a new interactor style
+	vtkSmartPointer<vtkInteractorStyleTerrain> style = vtkSmartPointer<vtkInteractorStyleTerrain>::New();
+	interactor->SetInteractorStyle(style);
 
 	// Set up action signals and slots
 	connect(this->ui->actionExit, SIGNAL(triggered()), this, SLOT(slotExit()));
@@ -82,6 +121,18 @@ void TerrainView::insertPoint(double x, double y, double z) {
 	renderLock->Unlock();
 }
 
+void TerrainView::setIMURotation(double x, double y, double z, double w) {
+	transform->RotateWXYZ(w, x, y, z);
+	transform->Modified();
+}
+
+void TerrainView::setIMUPosition(double x, double y, double z) {
+	//transform->Translate(x, y, z);
+	//transform->Modified();
+	cubeActor->SetPosition(x, y, z);
+	cubeActor->Modified();
+}
+
 void TerrainView::clear() {
 	renderLock->Lock();
 	points->Reset();
@@ -89,13 +140,12 @@ void TerrainView::clear() {
 }
 
 void TerrainView::flush() {
-	renderLock->Lock();
-	//points = generateRandomPoints(25);
-	//polydata->SetPoints(points);
-	polydata->Modified();
-	polydata->Update();
+	//renderLock->Lock();
+
+	//polydata->Update();
 	delaunay->Update();
 	polydata->Modified();
-	renderLock->Unlock();
+
+	//renderLock->Unlock();
 }
 

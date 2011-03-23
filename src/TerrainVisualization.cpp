@@ -9,13 +9,21 @@ TerrainView* terrainView;
 
 void attitudeCallback(const geometry_msgs::PoseStamped::ConstPtr& msg) {
 	ROS_INFO("Attitude : %s", msg->header.frame_id.c_str());
+	double px = msg->pose.position.x;
+	double py = msg->pose.position.y;
+	double pz = msg->pose.position.z;
+	terrainView->setIMUPosition(px, py, pz);
+
+	double qx = msg->pose.orientation.x;
+	double qy = msg->pose.orientation.y;
+	double qz = msg->pose.orientation.z;
+	double qw = msg->pose.orientation.w;
+	//terrainView->setIMURotation(qx, qy, qz, qw);
 }
 
 void markerCallback(const visualization_msgs::MarkerArray::ConstPtr& markers) {
 	int size = markers->markers.size();
 	ROS_INFO("%d markers sent", size);
-
-	terrainView->clear();
 
 	for (int i = 0; i < size; i++) {
 		ROS_INFO("x %f y %f z %f", markers->markers[i].pose.position.x,
