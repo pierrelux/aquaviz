@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'TerrainViewUI.ui'
 **
-** Created: Sun Mar 6 18:43:32 2011
+** Created: Wed Mar 23 19:27:14 2011
 **      by: Qt User Interface Compiler version 4.7.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -19,6 +19,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <QtGui/QStatusBar>
+#include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 #include "QVTKWidget.h"
 
@@ -36,6 +37,8 @@ public:
     QAction *actionQuit;
     QAction *actionAbout;
     QWidget *centralwidget;
+    QVBoxLayout *verticalLayout_2;
+    QVBoxLayout *verticalLayout;
     QVTKWidget *qvtkWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -46,12 +49,7 @@ public:
     {
         if (TerrainView->objectName().isEmpty())
             TerrainView->setObjectName(QString::fromUtf8("TerrainView"));
-        TerrainView->resize(794, 600);
-        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(TerrainView->sizePolicy().hasHeightForWidth());
-        TerrainView->setSizePolicy(sizePolicy);
+        TerrainView->resize(1024, 768);
         actionOpenFile = new QAction(TerrainView);
         actionOpenFile->setObjectName(QString::fromUtf8("actionOpenFile"));
         actionOpenFile->setEnabled(true);
@@ -71,13 +69,29 @@ public:
         actionAbout->setObjectName(QString::fromUtf8("actionAbout"));
         centralwidget = new QWidget(TerrainView);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
+        verticalLayout_2 = new QVBoxLayout(centralwidget);
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        verticalLayout = new QVBoxLayout();
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setSizeConstraint(QLayout::SetMaximumSize);
         qvtkWidget = new QVTKWidget(centralwidget);
         qvtkWidget->setObjectName(QString::fromUtf8("qvtkWidget"));
-        qvtkWidget->setGeometry(QRect(0, 0, 800, 600));
+        qvtkWidget->setEnabled(true);
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(qvtkWidget->sizePolicy().hasHeightForWidth());
+        qvtkWidget->setSizePolicy(sizePolicy);
+
+        verticalLayout->addWidget(qvtkWidget);
+
+
+        verticalLayout_2->addLayout(verticalLayout);
+
         TerrainView->setCentralWidget(centralwidget);
         menuBar = new QMenuBar(TerrainView);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 794, 25));
+        menuBar->setGeometry(QRect(0, 0, 1024, 25));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         menuHelp = new QMenu(menuBar);
@@ -100,7 +114,7 @@ public:
 
     void retranslateUi(QMainWindow *TerrainView)
     {
-        TerrainView->setWindowTitle(QApplication::translate("TerrainView", "Ocean Floor Visualizer", 0, QApplication::UnicodeUTF8));
+        TerrainView->setWindowTitle(QApplication::translate("TerrainView", "Ocean Floor Visualization", 0, QApplication::UnicodeUTF8));
         actionOpenFile->setText(QApplication::translate("TerrainView", "Open File...", 0, QApplication::UnicodeUTF8));
         actionExit->setText(QApplication::translate("TerrainView", "Exit", 0, QApplication::UnicodeUTF8));
         actionPrint->setText(QApplication::translate("TerrainView", "Print", 0, QApplication::UnicodeUTF8));
