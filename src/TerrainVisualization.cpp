@@ -18,7 +18,7 @@ void attitudeCallback(const geometry_msgs::PoseStamped::ConstPtr& msg) {
 	double qy = msg->pose.orientation.y;
 	double qz = msg->pose.orientation.z;
 	double qw = msg->pose.orientation.w;
-	//terrainView->setIMURotation(qx, qy, qz, qw);
+	terrainView->setIMURotation(qx, qy, qz, qw);
 }
 
 void markerCallback(const visualization_msgs::MarkerArray::ConstPtr& markers) {

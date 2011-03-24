@@ -1,6 +1,8 @@
 #include "ui_TerrainViewUI.h"
 #include "TerrainViewUI.h"
 
+#include "util/QuaternionToEuler.h"
+
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkSmartPointer.h>
@@ -11,6 +13,7 @@
 #include <vtkProperty.h>
 #include <vtkAxesActor.h>
 #include <vtkInteractorStyleTerrain.h>
+#include <vtkMath.h>
 
 // Constructor
 TerrainView::TerrainView() {
@@ -45,8 +48,8 @@ TerrainView::TerrainView() {
 	vtkSmartPointer<vtkCubeSource> cubeSource =
 			vtkSmartPointer<vtkCubeSource>::New();
 	cubeSource->SetYLength(0.10);
-	cubeSource->SetXLength(0.25);
-	cubeSource->SetZLength(0.50);
+	cubeSource->SetXLength(0.50);
+	cubeSource->SetZLength(0.25);
 
 	// Create a cube mapper and actor.
 	transform = vtkSmartPointer<vtkTransform>::New();
@@ -122,14 +125,29 @@ void TerrainView::insertPoint(double x, double y, double z) {
 }
 
 void TerrainView::setIMURotation(double x, double y, double z, double w) {
-	transform->RotateWXYZ(w, x, y, z);
-	transform->Modified();
+	//transform->RotateWXYZ(w, x, y, z);
+	//transform->Modified();
+
+	QuaternionToEuler quatToEuler;
+	boost::numeric::ublas::vector<double> euler = quatToEuler(x, y, z, w);
+
+	//cubeActor->RotateY(vtkMath::DegreesFromRadians(euler(0)));
+	//cubeActor->RotateX(vtkMath::DegreesFromRadians(euler(1)));
+	//cubeActor->RotateZ(vtkMath::DegreesFromRadians(euler(2)));
+
+	cubeActor->SetOrientation(vtkMath::DegreesFromRadians(euler(0)), vtkMath::DegreesFromRadians(euler(1)), vtkMath::DegreesFromRadians(euler(2)));
+	cubeActor->Modified();
 }
 
 void TerrainView::setIMUPosition(double x, double y, double z) {
 	//transform->Translate(x, y, z);
 	//transform->Modified();
-	cubeActor->SetPosition(x, y, z);
+
+	// Important ! : VTK Coordinate system is right-handed,
+	// with the Z axis pointing towards the viewer.
+	// Coordinates from ROS are such that y points towards the viewer
+	// and z points up. Therefore, we need to take that into account below !
+	cubeActor->SetPosition(x, z, y);
 	cubeActor->Modified();
 }
 
