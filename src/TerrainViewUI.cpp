@@ -1,7 +1,8 @@
 #include "ui_TerrainViewUI.h"
 #include "TerrainViewUI.h"
 
-#include "util/QuaternionToEuler.h"
+#include "util/QuaternionToRotationMatrix.h"
+#include "util/RotationMatrix3x3To4x4.h"
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -12,8 +13,10 @@
 #include <qinputdialog.h>
 #include <vtkProperty.h>
 #include <vtkAxesActor.h>
+#include <vtkCubeAxesActor.h>
 #include <vtkInteractorStyleTerrain.h>
 #include <vtkMath.h>
+#include <vtkMatrix4x4.h>
 
 // Constructor
 TerrainView::TerrainView() {
@@ -42,24 +45,24 @@ TerrainView::TerrainView() {
 	vtkSmartPointer<vtkActor> triangulatedActor =
 			vtkSmartPointer<vtkActor>::New();
 	triangulatedActor->SetMapper(triangulatedMapper);
-	triangulatedActor->RotateX(-75);
+	//triangulatedActor->RotateX(-75);
 
 	// Create robot model
 	vtkSmartPointer<vtkCubeSource> cubeSource =
 			vtkSmartPointer<vtkCubeSource>::New();
-	cubeSource->SetYLength(0.10);
+	cubeSource->SetYLength(0.25);
 	cubeSource->SetXLength(0.50);
-	cubeSource->SetZLength(0.25);
+	cubeSource->SetZLength(0.10);
 
 	// Create a cube mapper and actor.
-	transform = vtkSmartPointer<vtkTransform>::New();
-
 	vtkSmartPointer<vtkPolyDataMapper> cubeMapper = vtkSmartPointer<
 			vtkPolyDataMapper>::New();
 	cubeMapper->SetInputConnection(cubeSource->GetOutputPort());
 	cubeActor = vtkSmartPointer<vtkActor>::New();
 	cubeActor->SetMapper(cubeMapper);
 	cubeActor->GetProperty()->SetColor(1,1,0);
+
+	transform = vtkSmartPointer<vtkTransform>::New();
 	cubeActor->SetUserTransform(transform);
 
 	// Create Axes Actor
@@ -67,15 +70,20 @@ TerrainView::TerrainView() {
 
 	// Create camera for renderer
 	vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
-	//camera->SetUserTransform(transform);
-	camera->SetPosition(0, 0, 100);
-	camera->SetFocalPoint(0, 0, 0);
+	camera->SetPosition(0, 0, 50);
+	//camera->SetFocalPoint(0, 0, 0);
+	camera->SetViewUp(0,-1, 0);
+
+	// Create axes actor
+	vtkSmartPointer<vtkCubeAxesActor> cubeAxesActor =   vtkSmartPointer<vtkCubeAxesActor>::New();
+	cubeAxesActor->SetCamera(camera);
 
 	// VTK Renderer
 	vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
 	renderer->AddActor(cubeActor);
 	renderer->AddActor(triangulatedActor);
 	renderer->AddActor(axes);
+	//renderer->AddActor(cubeAxesActor);
 
 	renderer->SetBackground(.5, .5, 1.0);
 	renderer->SetActiveCamera(camera);
@@ -125,30 +133,63 @@ void TerrainView::insertPoint(double x, double y, double z) {
 }
 
 void TerrainView::setIMURotation(double x, double y, double z, double w) {
-	//transform->RotateWXYZ(w, x, y, z);
-	//transform->Modified();
+	//QuaternionToEuler quatToEuler;
+	//boost::numeric::ublas::vector<double> euler = quatToEuler(x, y, z, w);
+	boost::numeric::ublas::vector<double> q(4);
+	q(0) = x;
+	q(1) = y;
+	q(2) = z;
+	q(3) = w;
 
-	QuaternionToEuler quatToEuler;
-	boost::numeric::ublas::vector<double> euler = quatToEuler(x, y, z, w);
+	QuaternionToRotationMatrix quatToRot;
+	boost::numeric::ublas::matrix<double> rotationMatrix3x3 = quatToRot(q);
 
-	//cubeActor->RotateY(vtkMath::DegreesFromRadians(euler(0)));
-	//cubeActor->RotateX(vtkMath::DegreesFromRadians(euler(1)));
-	//cubeActor->RotateZ(vtkMath::DegreesFromRadians(euler(2)));
+//	RotationMatrix3x3To4x4 rot3To4;
+//	boost::numeric::ublas::matrix<double> rotationMatrix4x4 = rot3To4(rotationMatrix3x3);
 
-	cubeActor->SetOrientation(vtkMath::DegreesFromRadians(euler(0)), vtkMath::DegreesFromRadians(euler(1)), vtkMath::DegreesFromRadians(euler(2)));
+//	vtkSmartPointer<vtkMatrix4x4> rotation = vtkSmartPointer<vtkMatrix4x4>::New();
+//	for (int i = 0; i < 4; i++) {
+//		for (int j = 0; j < 4; j++) {
+//			rotation->SetElement(i, j, rotationMatrix4x4(i,j));
+//		}
+//	}
+
+	renderLock->Lock();
+	//cubeActor->SetOrientation(vtkMath::DegreesFromRadians(euler(0)),
+	//		vtkMath::DegreesFromRadians(euler(1)),
+	//		vtkMath::DegreesFromRadians(euler(2)));
+	//transform->Identity();
+	//transform->SetMatrix(rotation);
+
+	double rot[3][3] = { 0, 0,  0,
+			             0, 0,  0,
+			             0, 0,  0 };
+
+	for (int i = 0; i < 3; i++) {
+		for (int j= 0; j < 3; j++) {
+			rot[i][j] = rotationMatrix3x3(i,j);
+		}
+	}
+
+	double quat[4];
+    vtkMath::Matrix3x3ToQuaternion(rot, quat);
+    transform->Identity();
+    transform->RotateWXYZ(quat[3], quat[0], quat[1], quat[2]);
+
 	cubeActor->Modified();
+	renderLock->Unlock();
+
 }
 
 void TerrainView::setIMUPosition(double x, double y, double z) {
-	//transform->Translate(x, y, z);
-	//transform->Modified();
-
 	// Important ! : VTK Coordinate system is right-handed,
 	// with the Z axis pointing towards the viewer.
 	// Coordinates from ROS are such that y points towards the viewer
 	// and z points up. Therefore, we need to take that into account below !
-	cubeActor->SetPosition(x, z, y);
+	renderLock->Lock();
+	cubeActor->SetPosition(x, y, z);
 	cubeActor->Modified();
+	renderLock->Unlock();
 }
 
 void TerrainView::clear() {
@@ -158,12 +199,9 @@ void TerrainView::clear() {
 }
 
 void TerrainView::flush() {
-	//renderLock->Lock();
-
-	//polydata->Update();
+	renderLock->Lock();
 	delaunay->Update();
 	polydata->Modified();
-
-	//renderLock->Unlock();
+	renderLock->Unlock();
 }
 

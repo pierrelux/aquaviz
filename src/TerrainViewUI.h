@@ -102,8 +102,8 @@ private:
 	vtkSmartPointer<vtkDelaunay2D> delaunay;
 
 	vtkMutexLock* renderLock;
-	vtkSmartPointer<vtkTransform> transform;
 	vtkSmartPointer<vtkActor> cubeActor;
+	vtkSmartPointer<vtkTransform> transform;
 
 	// Designer form
 	Ui_TerrainView *ui;

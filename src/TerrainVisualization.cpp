@@ -30,12 +30,12 @@ void markerCallback(const visualization_msgs::MarkerArray::ConstPtr& markers) {
                                    markers->markers[i].pose.position.y,
                                    markers->markers[i].pose.position.z);
 
-		terrainView->insertPoint(markers->markers[i].pose.position.x,
-                                 markers->markers[i].pose.position.y,
-                                 markers->markers[i].pose.position.z);
+		//terrainView->insertPoint(markers->markers[i].pose.position.x,
+        //                         markers->markers[i].pose.position.y,
+        //                         markers->markers[i].pose.position.z);
 	}
 
-	terrainView->flush();
+	//terrainView->flush();
 }
 
 int main(int argc, char **argv) {
