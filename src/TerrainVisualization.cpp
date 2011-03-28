@@ -12,7 +12,7 @@ void attitudeCallback(const geometry_msgs::PoseStamped::ConstPtr& msg) {
 	double px = msg->pose.position.x;
 	double py = msg->pose.position.y;
 	double pz = msg->pose.position.z;
-	terrainView->setIMUPosition(px, py, pz);
+	//terrainView->setIMUPosition(px, py, pz);
 
 	double qx = msg->pose.orientation.x;
 	double qy = msg->pose.orientation.y;

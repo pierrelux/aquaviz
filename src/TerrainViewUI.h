@@ -11,6 +11,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkTransform.h>
 #include <vtkActor.h>
+#include <vtkCubeSource.h>
 
 #include <QMainWindow>
 
@@ -103,7 +104,7 @@ private:
 
 	vtkMutexLock* renderLock;
 	vtkSmartPointer<vtkActor> cubeActor;
-	vtkSmartPointer<vtkTransform> transform;
+	vtkSmartPointer<vtkCubeSource> cubeSource;
 
 	// Designer form
 	Ui_TerrainView *ui;
