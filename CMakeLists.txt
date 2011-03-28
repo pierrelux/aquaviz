@@ -41,8 +41,12 @@ rosbuild_add_executable(talker src/ImuEstimator.cpp
                                src/PoseParser.h
                                src/PoseParser.cpp)
                                
-SET(TerrainViewSrcs src/TerrainVisualization.cpp src/TerrainViewUI.cpp)
+SET(TerrainViewSrcs src/TerrainVisualization.cpp 
+                    src/TerrainViewUI.cpp
+                    src/RosIMUSubscriberNode.cpp)
+                    
 SET(TerrainViewUI src/TerrainViewUI.ui)
+
 SET(TerrainViewHeaders src/TerrainViewUI.h)
  
 QT4_WRAP_UI(UISrcs ${TerrainViewUI})

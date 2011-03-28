@@ -2,10 +2,13 @@
 #define ROBOTATTITUDEWIDGET_H__
 
 #include <vtkInteractorObserver.h>
-#include <vtkObjectFactory.h>
+#include <vtkMatrix4x4.h>
 
+// Forward declaration
 class vtkActor;
 class vtkRenderer;
+class vtkAxesActor;
+class vtkCamera;
 
 class RobotAttitudeWidget: public vtkInteractorObserver {
 public:
@@ -23,7 +26,13 @@ public:
 	 * Set/get the viewport to position/size this widget.
 	 */
 	void SetViewport(double minX, double minY, double maxX, double maxY);
+
 	double* GetViewport();
+
+	/**
+	 * @param
+	 */
+	void onIMUPoseUpdate(vtkMatrix4x4* matrix);
 
 protected:
 	RobotAttitudeWidget();
@@ -31,6 +40,8 @@ protected:
 
 	vtkRenderer *renderer;
 	vtkActor *robotActor;
+	vtkAxesActor *axes;
+	vtkCamera* camera;
 };
 
 

@@ -2,6 +2,7 @@
 
 #include <vtkCubeSource.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkAxesActor.h>
 #include <vtkActor.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -10,6 +11,7 @@
 
 #include <vtkObjectFactory.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkCamera.h>
 
 vtkCxxRevisionMacro(RobotAttitudeWidget, "$Revision: 1.0 $");
 vtkStandardNewMacro( RobotAttitudeWidget);
@@ -27,16 +29,26 @@ RobotAttitudeWidget::RobotAttitudeWidget() {
 	robotActor->SetMapper(cubeMapper);
 	robotActor->GetProperty()->SetColor(1, 1, 0);
 
+	// Create Axes Actor
+	axes = vtkAxesActor::New();
+
+	camera = vtkCamera::New();
+	camera->SetPosition(3, 3, 0.5);
+	camera->SetViewUp(0, 0, 1);
+
 	renderer = vtkRenderer::New();
-	renderer->SetViewport(0.0, 0.0, 0.2, 0.2);
+	renderer->SetViewport(0.0, 0.0, 0.3, 0.3);
 	renderer->SetLayer(1);
-	renderer->InteractiveOff();
+	//renderer->InteractiveOff();
+	renderer->SetBackground(1,0,0);
 	renderer->AddViewProp(robotActor);
+	renderer->SetActiveCamera(camera);
 }
 
 RobotAttitudeWidget::~RobotAttitudeWidget() {
 	renderer->Delete();
 	robotActor->Delete();
+	axes->Delete();
 }
 
 void RobotAttitudeWidget::SetEnabled(int enabling) {
@@ -59,10 +71,15 @@ void RobotAttitudeWidget::SetEnabled(int enabling) {
 		}
 
 		renderer->AddViewProp(robotActor);
+		renderer->AddViewProp(axes);
+
 		robotActor->VisibilityOn();
+		axes->VisibilityOn();
 	} else {
 		renderer->RemoveViewProp(robotActor);
+		renderer->RemoveViewProp(axes);
 		robotActor->VisibilityOff();
+		axes->VisibilityOff();
 		if (this->CurrentRenderer->GetRenderWindow()) {
 			this->CurrentRenderer->GetRenderWindow()->RemoveRenderer(renderer);
 		}
@@ -84,3 +101,10 @@ void RobotAttitudeWidget::PrintSelf(std::ostream& os, vtkIndent indent) {
 	this->Superclass::PrintSelf(os, indent);
 	os << indent << "RobotAttitudeWidget:" << endl;
 }
+
+void RobotAttitudeWidget::onIMUPoseUpdate(vtkMatrix4x4* matrix)
+{
+	robotActor->SetUserMatrix(matrix);
+	robotActor->Modified();
+}
+

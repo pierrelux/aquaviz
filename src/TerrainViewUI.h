@@ -12,6 +12,7 @@
 #include <vtkTransform.h>
 #include <vtkActor.h>
 #include <vtkCubeSource.h>
+#include "widget/RobotAttitudeWidget.h"
 
 #include <QMainWindow>
 
@@ -105,6 +106,7 @@ private:
 	vtkMutexLock* renderLock;
 	vtkSmartPointer<vtkActor> cubeActor;
 	vtkSmartPointer<vtkCubeSource> cubeSource;
+	vtkSmartPointer<RobotAttitudeWidget> robotAttitudeWidget;
 
 	// Designer form
 	Ui_TerrainView *ui;

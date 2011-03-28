@@ -12,13 +12,10 @@
 #include <vtkCamera.h>
 #include <qinputdialog.h>
 #include <vtkProperty.h>
-#include <vtkAxesActor.h>
-#include <vtkSphereSource.h>
+#include <vtkPlaneSource.h>
 #include <vtkInteractorStyleJoystickCamera.h>
 #include <vtkMath.h>
 #include <vtkMatrix4x4.h>
-
-#include "widget/RobotAttitudeWidget.h"
 
 // Constructor
 TerrainView::TerrainView() {
@@ -61,36 +58,34 @@ TerrainView::TerrainView() {
 	cubeActor->SetMapper(cubeMapper);
 	cubeActor->GetProperty()->SetColor(1, 1, 0);
 
-	// Setup sphere
-	vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<
-			vtkSphereSource>::New();
-	sphereSource->Update();
-	vtkSmartPointer<vtkPolyDataMapper> sphereMapper = vtkSmartPointer<
+	// Create a ground plane
+	vtkSmartPointer<vtkPlaneSource> planeSource = vtkSmartPointer<
+			vtkPlaneSource>::New();
+	planeSource->SetCenter(-10.0, -10.0, -1.0);
+	planeSource->SetNormal(0.0, 0.0, 1.0);
+	planeSource->SetResolution(100,100);
+
+	planeSource->SetPoint1(10.0, -10.0, -1.0);
+	planeSource->SetPoint2(-10.0, 10.0, -1.0);
+
+	vtkSmartPointer<vtkPolyDataMapper> groundPlaneMapper = vtkSmartPointer<
 			vtkPolyDataMapper>::New();
-	sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
-	vtkSmartPointer<vtkActor> sphereActor = vtkSmartPointer<vtkActor>::New();
-	sphereActor->SetMapper(sphereMapper);
+	groundPlaneMapper->SetInput(planeSource->GetOutput());
 
-/*	vtkSmartPointer<vtkRenderer> attitudeRenderer =
-			vtkSmartPointer<vtkRenderer>::New();
-	attitudeRenderer->SetViewport(0.0, 0.0, 0.2, 0.2);
-	attitudeRenderer->SetLayer(1);
-	attitudeRenderer->InteractiveOff();
-	attitudeRenderer->AddViewProp(sphereActor);*/
-
-	// Create Axes Actor
-	vtkSmartPointer<vtkAxesActor> axes = vtkSmartPointer<vtkAxesActor>::New();
+	vtkSmartPointer<vtkActor> groundPlaneActor = vtkSmartPointer<vtkActor>::New();
+	groundPlaneActor->SetMapper(groundPlaneMapper);
+	groundPlaneActor->GetProperty()->SetRepresentationToWireframe();
 
 	// Create camera for renderer
 	vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
-	camera->SetPosition(0, 0, 50);
+	camera->SetPosition(0, 0, 10);
 	camera->SetViewUp(0, -1, 0);
 
 	// VTK Renderer
 	vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
 	renderer->AddActor(cubeActor);
 	renderer->AddActor(triangulatedActor);
-	renderer->AddActor(axes);
+	renderer->AddActor(groundPlaneActor);
 	renderer->SetBackground(.5, .5, 1.0);
 	renderer->SetActiveCamera(camera);
 
@@ -99,9 +94,9 @@ TerrainView::TerrainView() {
 	vtkRenderWindowInteractor* interactor =
 			this->ui->qvtkWidget->GetInteractor();
 
-	vtkSmartPointer<RobotAttitudeWidget> widget = vtkSmartPointer<RobotAttitudeWidget>::New();
-	widget->SetInteractor(interactor);
-	widget->SetEnabled(1);
+	robotAttitudeWidget = vtkSmartPointer<RobotAttitudeWidget>::New();
+	robotAttitudeWidget->SetInteractor(interactor);
+	robotAttitudeWidget->SetEnabled(1);
 
 	// Setup rendering callback
 	vtkSmartPointer<RenderingTimerCallback> callback =
@@ -166,12 +161,10 @@ void TerrainView::setIMURotation(double x, double y, double z, double w) {
 
 	std::cout << "Matrix " << *rotation << std::endl;
 	renderLock->Lock();
-	//double position[3];
-	//cubeActor->GetPosition(position);
-	//cubeActor->SetOrigin(position);
-
 	cubeActor->SetUserMatrix(rotation);
 	cubeActor->Modified();
+
+	robotAttitudeWidget->onIMUPoseUpdate(rotation);
 	renderLock->Unlock();
 }
 
