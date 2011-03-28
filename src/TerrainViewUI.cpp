@@ -13,10 +13,12 @@
 #include <qinputdialog.h>
 #include <vtkProperty.h>
 #include <vtkAxesActor.h>
-#include <vtkCubeAxesActor.h>
+#include <vtkSphereSource.h>
 #include <vtkInteractorStyleJoystickCamera.h>
 #include <vtkMath.h>
 #include <vtkMatrix4x4.h>
+
+#include "widget/RobotAttitudeWidget.h"
 
 // Constructor
 TerrainView::TerrainView() {
@@ -45,22 +47,36 @@ TerrainView::TerrainView() {
 	vtkSmartPointer<vtkActor> triangulatedActor =
 			vtkSmartPointer<vtkActor>::New();
 	triangulatedActor->SetMapper(triangulatedMapper);
-	//triangulatedActor->RotateX(-75);
 
 	// Create robot model
-	cubeSource =
-			vtkSmartPointer<vtkCubeSource>::New();
+	cubeSource = vtkSmartPointer<vtkCubeSource>::New();
 	cubeSource->SetYLength(0.25);
 	cubeSource->SetXLength(0.50);
 	cubeSource->SetZLength(0.10);
 
-	// Create a cube mapper and actor.
 	vtkSmartPointer<vtkPolyDataMapper> cubeMapper = vtkSmartPointer<
 			vtkPolyDataMapper>::New();
 	cubeMapper->SetInputConnection(cubeSource->GetOutputPort());
 	cubeActor = vtkSmartPointer<vtkActor>::New();
 	cubeActor->SetMapper(cubeMapper);
-	cubeActor->GetProperty()->SetColor(1,1,0);
+	cubeActor->GetProperty()->SetColor(1, 1, 0);
+
+	// Setup sphere
+	vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<
+			vtkSphereSource>::New();
+	sphereSource->Update();
+	vtkSmartPointer<vtkPolyDataMapper> sphereMapper = vtkSmartPointer<
+			vtkPolyDataMapper>::New();
+	sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
+	vtkSmartPointer<vtkActor> sphereActor = vtkSmartPointer<vtkActor>::New();
+	sphereActor->SetMapper(sphereMapper);
+
+/*	vtkSmartPointer<vtkRenderer> attitudeRenderer =
+			vtkSmartPointer<vtkRenderer>::New();
+	attitudeRenderer->SetViewport(0.0, 0.0, 0.2, 0.2);
+	attitudeRenderer->SetLayer(1);
+	attitudeRenderer->InteractiveOff();
+	attitudeRenderer->AddViewProp(sphereActor);*/
 
 	// Create Axes Actor
 	vtkSmartPointer<vtkAxesActor> axes = vtkSmartPointer<vtkAxesActor>::New();
@@ -68,30 +84,26 @@ TerrainView::TerrainView() {
 	// Create camera for renderer
 	vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
 	camera->SetPosition(0, 0, 50);
-	//camera->SetFocalPoint(0, 0, 0);
-	camera->SetViewUp(0,-1, 0);
-
-	// Create axes actor
-	vtkSmartPointer<vtkCubeAxesActor> cubeAxesActor =   vtkSmartPointer<vtkCubeAxesActor>::New();
-	cubeAxesActor->SetCamera(camera);
+	camera->SetViewUp(0, -1, 0);
 
 	// VTK Renderer
 	vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
 	renderer->AddActor(cubeActor);
 	renderer->AddActor(triangulatedActor);
 	renderer->AddActor(axes);
-	//renderer->AddActor(cubeAxesActor);
-
 	renderer->SetBackground(.5, .5, 1.0);
 	renderer->SetActiveCamera(camera);
 
 	// VTK/Qt
 	this->ui->qvtkWidget->GetRenderWindow()->AddRenderer(renderer);
-
-	// Setup rendering callback
 	vtkRenderWindowInteractor* interactor =
 			this->ui->qvtkWidget->GetInteractor();
 
+	vtkSmartPointer<RobotAttitudeWidget> widget = vtkSmartPointer<RobotAttitudeWidget>::New();
+	widget->SetInteractor(interactor);
+	widget->SetEnabled(1);
+
+	// Setup rendering callback
 	vtkSmartPointer<RenderingTimerCallback> callback =
 			new RenderingTimerCallback(this,
 					this->ui->qvtkWidget->GetRenderWindow());
@@ -100,7 +112,8 @@ TerrainView::TerrainView() {
 	interactor->CreateRepeatingTimer(100);
 
 	// Set a new interactor style
-	vtkSmartPointer<vtkInteractorStyleJoystickCamera> style = vtkSmartPointer<vtkInteractorStyleJoystickCamera>::New();
+	vtkSmartPointer<vtkInteractorStyleJoystickCamera> style = vtkSmartPointer<
+			vtkInteractorStyleJoystickCamera>::New();
 	interactor->SetInteractorStyle(style);
 
 	// Set up action signals and slots
@@ -131,28 +144,33 @@ void TerrainView::insertPoint(double x, double y, double z) {
 
 void TerrainView::setIMURotation(double x, double y, double z, double w) {
 	boost::numeric::ublas::vector<double> q(4);
-	q(0) = x; q(1) = y; q(2) = z; q(3) = w;
+	q(0) = x;
+	q(1) = y;
+	q(2) = z;
+	q(3) = w;
 
 	QuaternionToRotationMatrix quatToRot;
 	boost::numeric::ublas::matrix<double> rotationMatrix3x3 = quatToRot(q);
 
 	RotationMatrix3x3To4x4 rot3To4;
-	boost::numeric::ublas::matrix<double> rotationMatrix4x4 = rot3To4(rotationMatrix3x3);
+	boost::numeric::ublas::matrix<double> rotationMatrix4x4 = rot3To4(
+			rotationMatrix3x3);
 
-	vtkSmartPointer<vtkMatrix4x4> rotation = vtkSmartPointer<vtkMatrix4x4>::New();
+	vtkSmartPointer<vtkMatrix4x4> rotation =
+			vtkSmartPointer<vtkMatrix4x4>::New();
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
-			rotation->SetElement(i, j, rotationMatrix4x4(i,j));
+			rotation->SetElement(i, j, rotationMatrix4x4(i, j));
 		}
 	}
 
 	std::cout << "Matrix " << *rotation << std::endl;
 	renderLock->Lock();
-    //double position[3];
-    //cubeActor->GetPosition(position);
-    //cubeActor->SetOrigin(position);
+	//double position[3];
+	//cubeActor->GetPosition(position);
+	//cubeActor->SetOrigin(position);
 
-    cubeActor->SetUserMatrix(rotation);
+	cubeActor->SetUserMatrix(rotation);
 	cubeActor->Modified();
 	renderLock->Unlock();
 }

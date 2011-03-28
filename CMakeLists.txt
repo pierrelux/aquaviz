@@ -48,6 +48,8 @@ SET(TerrainViewHeaders src/TerrainViewUI.h)
 QT4_WRAP_UI(UISrcs ${TerrainViewUI})
 QT4_WRAP_CPP(MOCSrcs ${TerrainViewHeaders} )
 
-rosbuild_add_executable(listener ${TerrainViewSrcs} ${UISrcs} ${MOCSrcs})
-TARGET_LINK_LIBRARIES( listener QVTK )
+SET(Widgets_sources  src/widget/RobotAttitudeWidget.cxx)
 
+ADD_LIBRARY(CustomWidgets STATIC ${Widgets_sources})
+rosbuild_add_executable(listener ${TerrainViewSrcs} ${UISrcs} ${MOCSrcs})
+TARGET_LINK_LIBRARIES( listener QVTK CustomWidgets vtkHybrid vtkRendering)
