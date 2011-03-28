@@ -16,6 +16,7 @@
 #include <vtkInteractorStyleJoystickCamera.h>
 #include <vtkMath.h>
 #include <vtkMatrix4x4.h>
+#include <vtkAxesActor.h>
 
 // Constructor
 TerrainView::TerrainView() {
@@ -76,16 +77,19 @@ TerrainView::TerrainView() {
 	groundPlaneActor->SetMapper(groundPlaneMapper);
 	groundPlaneActor->GetProperty()->SetRepresentationToWireframe();
 
+	vtkSmartPointer<vtkAxesActor> axesActor = vtkSmartPointer<vtkAxesActor>::New();
+
 	// Create camera for renderer
 	vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
-	camera->SetPosition(0, 0, 10);
-	camera->SetViewUp(0, -1, 0);
+	camera->SetPosition(-4, 0, 1.0);
+	camera->SetViewUp(0, 0, 1);
 
 	// VTK Renderer
 	vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
 	renderer->AddActor(cubeActor);
 	renderer->AddActor(triangulatedActor);
 	renderer->AddActor(groundPlaneActor);
+	renderer->AddActor(axesActor);
 	renderer->SetBackground(.5, .5, 1.0);
 	renderer->SetActiveCamera(camera);
 
@@ -139,10 +143,7 @@ void TerrainView::insertPoint(double x, double y, double z) {
 
 void TerrainView::setIMURotation(double x, double y, double z, double w) {
 	boost::numeric::ublas::vector<double> q(4);
-	q(0) = x;
-	q(1) = y;
-	q(2) = z;
-	q(3) = w;
+	q(0) = x; q(1) = y; q(2) = z; q(3) = w;
 
 	QuaternionToRotationMatrix quatToRot;
 	boost::numeric::ublas::matrix<double> rotationMatrix3x3 = quatToRot(q);
@@ -151,6 +152,7 @@ void TerrainView::setIMURotation(double x, double y, double z, double w) {
 	boost::numeric::ublas::matrix<double> rotationMatrix4x4 = rot3To4(
 			rotationMatrix3x3);
 
+	// Convert 3x3 to 4x4 without translation
 	vtkSmartPointer<vtkMatrix4x4> rotation =
 			vtkSmartPointer<vtkMatrix4x4>::New();
 	for (int i = 0; i < 4; i++) {
@@ -161,7 +163,20 @@ void TerrainView::setIMURotation(double x, double y, double z, double w) {
 
 	std::cout << "Matrix " << *rotation << std::endl;
 	renderLock->Lock();
-	cubeActor->SetUserMatrix(rotation);
+
+	vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+	double position[3];
+	cubeActor->GetPosition(position);
+
+	transform->Identity();
+	transform->PostMultiply();
+	transform->Translate(-position[0], -position[1], -position[2]);
+
+	transform->Concatenate(rotation);
+
+	transform->Translate(position);
+
+	cubeActor->SetUserTransform(transform);
 	cubeActor->Modified();
 
 	robotAttitudeWidget->onIMUPoseUpdate(rotation);
@@ -169,13 +184,9 @@ void TerrainView::setIMURotation(double x, double y, double z, double w) {
 }
 
 void TerrainView::setIMUPosition(double x, double y, double z) {
-	// Important ! : VTK Coordinate system is right-handed,
-	// with the Z axis pointing towards the viewer.
-	// Coordinates from ROS are such that y points towards the viewer
-	// and z points up. Therefore, we need to take that into account below !
 	renderLock->Lock();
-	cubeActor->SetPosition(x, y, z);
-	cubeActor->Modified();
+		cubeActor->SetPosition(x, y, z);
+		cubeActor->Modified();
 	renderLock->Unlock();
 }
 
