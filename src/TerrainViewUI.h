@@ -13,6 +13,7 @@
 #include <vtkActor.h>
 #include <vtkCubeSource.h>
 #include "widget/RobotAttitudeWidget.h"
+#include "widget/ScaleActor.h"
 
 #include <QMainWindow>
 
@@ -105,7 +106,6 @@ private:
 
 	vtkMutexLock* renderLock;
 	vtkSmartPointer<vtkActor> cubeActor;
-	vtkSmartPointer<vtkCubeSource> cubeSource;
 	vtkSmartPointer<RobotAttitudeWidget> robotAttitudeWidget;
 
 	// Designer form
@@ -129,6 +129,19 @@ private:
 		TerrainView* parent;
 		vtkSmartPointer<vtkRenderWindow> renderWindow;
 	};
+
+	/**
+	 * Create a virtual ground plane (horizon) below the robot on the sea floor.
+	 * @return A plane actor.
+	 */
+	vtkSmartPointer<vtkActor> createGroundPlane();
+
+	/**
+	 * Create a simplified model of the robot in 3D
+	 * @return A robot actor.
+	 */
+	vtkSmartPointer<vtkActor> createRobotModel();
+
 };
 
 #endif // TerrainViewUI_H
