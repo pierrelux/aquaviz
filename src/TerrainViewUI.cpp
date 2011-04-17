@@ -3,6 +3,7 @@
 
 #include "util/QuaternionToRotationMatrix.h"
 #include "util/RotationMatrix3x3To4x4.h"
+#include "util/Quaternion.h"
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -18,12 +19,14 @@
 #include <vtkMatrix4x4.h>
 #include <vtkAxesActor.h>
 #include <vtkAxisActor2D.h>
+#include <vtkCommand.h>
 
 // Constructor
 TerrainView::TerrainView() {
 	this->ui = new Ui_TerrainView;
 	this->ui->setupUi(this);
 
+	oldQuaternion = new Quaternion(0,0,0,1);
 	reverseRotation = vtkSmartPointer<vtkTransform>::New();
 	reverseRotation->Identity();
 	reverseRotation->PostMultiply();
@@ -82,29 +85,6 @@ TerrainView::TerrainView() {
 
 	renderer->SetBackground(.5, .5, 1.0);
 	renderer->SetActiveCamera(camera);
-
-	// Create elevation widget
-	/*vtkSmartPointer<vtkAxisActor2D> axisActor =
-			vtkSmartPointer<vtkAxisActor2D>::New();
-	axisActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
-	axisActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
-	axisActor->GetPositionCoordinate()->SetReferenceCoordinate(NULL);
-	axisActor->SetFontFactor(0.6);
-	axisActor->SetNumberOfLabels(5);
-	axisActor->AdjustLabelsOff();
-	axisActor->SetPoint1(10, 10);
-	axisActor->SetPoint2(-10, 10);
-	axisActor->SetTitle("Test");
-
-	int *size = renderer->GetSize();
-
-	//axisActor->GetPositionCoordinate()-> SetValue(size[0]
-	//		- 50, 2.0 * 30, 0.0);
-	//axisActor->GetPosition2Coordinate()-> SetValue(size[0]
-	//		- 50, size[1] - 2.0 * 30,
-	//		0.0);
-
-	renderer->AddActor2D(axisActor);*/
 
 	// VTK/Qt
 	this->ui->qvtkWidget->GetRenderWindow()->AddRenderer(renderer);
@@ -194,69 +174,54 @@ void TerrainView::insertPoint(double x, double y, double z) {
 }
 
 void TerrainView::setIMURotation(double x, double y, double z, double w) {
-	boost::numeric::ublas::vector<double> q(4);
-	q(0) = x;
-	q(1) = y;
-	q(2) = z;
-	q(3) = w;
-
-	QuaternionToRotationMatrix quatToRot;
-	boost::numeric::ublas::matrix<double> rotationMatrix3x3 = quatToRot(q);
-
-	RotationMatrix3x3To4x4 rot3To4;
-	boost::numeric::ublas::matrix<double> rotationMatrix4x4 = rot3To4(
-			rotationMatrix3x3);
-
-	// Convert 3x3 to 4x4 without translation
-	vtkSmartPointer<vtkMatrix4x4> rotation =
-			vtkSmartPointer<vtkMatrix4x4>::New();
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			rotation->SetElement(i, j, rotationMatrix4x4(i, j));
-		}
-	}
-
-	//std::cout << "Matrix " << *rotation << std::endl;
-
 	renderLock->Lock();
-	{
+		oldQuaternion->invert();
+		Quaternion combinedQuaternion = oldQuaternion->leftMultiply(x,y,z,w);
+
+		// Convert quaternion to 3x3 rotation matrix
+		QuaternionToRotationMatrix quatToRot;
+		boost::numeric::ublas::matrix<double> rotationMatrix3x3 = quatToRot(combinedQuaternion);
+
+		// Convert 3x3 rotation matrix to 4x4
+		RotationMatrix3x3To4x4 rot3To4;
+		boost::numeric::ublas::matrix<double> rotationMatrix4x4 = rot3To4(rotationMatrix3x3);
+
+		// Convert to vtkMatrix4x4
+		vtkSmartPointer<vtkMatrix4x4> rotation = vtkSmartPointer<vtkMatrix4x4>::New();
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				rotation->SetElement(i, j, rotationMatrix4x4(i, j));
+			}
+		}
+
 		vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
 		transform->Identity();
 		transform->PostMultiply();
 
+		// Rotate the robot back to the origin
 		double position[3];
 		cubeActor->GetPosition(position);
-
-		// Translate the robot back to the origin
 		transform->Translate(-position[0], -position[1], -position[2]);
-
-		// Rotate the robot back to the origin
-		vtkLinearTransform* inverse = reverseRotation->GetLinearInverse();
-		transform->Concatenate(inverse->GetMatrix());
 
 		// Rotate the robot according to the quaternion
 		transform->Concatenate(rotation);
 
-		// Translate the robot forward
+		// Translate the robot forward with the new position
 		transform->Translate(position);
-
-		// Accumulate the applied rotation
-		reverseRotation->Concatenate(rotation);
 
 		cubeActor->SetUserTransform(transform);
 		cubeActor->Modified();
 
 		robotAttitudeWidget->onIMUPoseUpdate(rotation);
-	}
+
+		delete oldQuaternion;
+		oldQuaternion = new Quaternion(x,y,z,w);
 	renderLock->Unlock();
 }
 
 void TerrainView::setIMUPosition(double x, double y, double z) {
 	renderLock->Lock();
-	{
-		cubeActor->SetPosition(x, y, z);
-		cubeActor->Modified();
-	}
+		cubeActor->SetPosition(x,y,z);
 	renderLock->Unlock();
 }
 

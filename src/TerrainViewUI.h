@@ -19,6 +19,7 @@
 
 // Forward Qt class declarations
 class Ui_TerrainView;
+class Quaternion;
 
 class TerrainView: public QMainWindow {
 Q_OBJECT
@@ -107,6 +108,9 @@ private:
 	vtkMutexLock* renderLock;
 	vtkSmartPointer<vtkActor> cubeActor;
 	vtkSmartPointer<RobotAttitudeWidget> robotAttitudeWidget;
+
+	// Old quaternion
+	Quaternion* oldQuaternion;
 
 	// Designer form
 	Ui_TerrainView *ui;

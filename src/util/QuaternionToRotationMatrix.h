@@ -19,6 +19,8 @@
 
 #include <functional>
 
+#include "Quaternion.h"
+
 namespace ublas = boost::numeric::ublas;
 
 struct QuaternionToRotationMatrix : std::unary_function <boost::numeric::ublas::matrix<double>, boost::numeric::ublas::vector<double> > {
@@ -57,6 +59,19 @@ struct QuaternionToRotationMatrix : std::unary_function <boost::numeric::ublas::
 	  identity_matrix<double> I(3);
 
 	  return (2*q(3)*q(3)-1)*I - 2*q(3)*qx + 2*Q;
+    }
+
+	boost::numeric::ublas::matrix<double> operator() (const Quaternion &q) const
+	{
+		return this->operator()(q.getX(),q.getY(),q.getZ(),q.getW());
+	}
+
+	boost::numeric::ublas::matrix<double> operator() (double x, double y, double z, double w) const
+    {
+		boost::numeric::ublas::vector<double> q(4);
+		q(0) = x; q(1) = y; q(2) = z; q(3) = w;
+
+		return this->operator()(q);
     }
 };
 
