@@ -142,6 +142,7 @@ private:
 	 */
 	vtkSmartPointer<vtkActor> createRobotModel();
 
+	vtkSmartPointer<vtkTransform> reverseRotation;
 };
 
 #endif // TerrainViewUI_H

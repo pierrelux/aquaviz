@@ -24,6 +24,10 @@ TerrainView::TerrainView() {
 	this->ui = new Ui_TerrainView;
 	this->ui->setupUi(this);
 
+	reverseRotation = vtkSmartPointer<vtkTransform>::New();
+	reverseRotation->Identity();
+	reverseRotation->PostMultiply();
+
 	// Used back the rendering callback to synchronize
 	// new update/recomputation
 	renderLock = vtkMutexLock::New();
@@ -216,18 +220,28 @@ void TerrainView::setIMURotation(double x, double y, double z, double w) {
 
 	renderLock->Lock();
 	{
-		vtkSmartPointer<vtkTransform> transform =
-				vtkSmartPointer<vtkTransform>::New();
+		vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+		transform->Identity();
+		transform->PostMultiply();
+
 		double position[3];
 		cubeActor->GetPosition(position);
 
-		transform->Identity();
-		transform->PostMultiply();
+		// Translate the robot back to the origin
 		transform->Translate(-position[0], -position[1], -position[2]);
 
+		// Rotate the robot back to the origin
+		vtkLinearTransform* inverse = reverseRotation->GetLinearInverse();
+		transform->Concatenate(inverse->GetMatrix());
+
+		// Rotate the robot according to the quaternion
 		transform->Concatenate(rotation);
 
+		// Translate the robot forward
 		transform->Translate(position);
+
+		// Accumulate the applied rotation
+		reverseRotation->Concatenate(rotation);
 
 		cubeActor->SetUserTransform(transform);
 		cubeActor->Modified();

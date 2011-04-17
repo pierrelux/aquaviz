@@ -33,7 +33,7 @@ struct RotationMatrix3x3To4x4: std::unary_function<
 
 		  /**
 		   * R4 = |R3 0|
-		   *      |0  0|
+		   *      |0  1|
 		   */
 		  for (int i = 0; i < 4; i++) {
 			  rotationMatrix4x4(3,i) = 0;
