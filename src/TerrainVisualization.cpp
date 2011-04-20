@@ -9,7 +9,7 @@ TerrainView* terrainView;
 
 void attitudeCallback(
 		const geometry_msgs::PoseStamped::ConstPtr& msg) {
-	ROS_INFO("Attitude : %s", msg->header.frame_id.c_str());
+	//ROS_INFO("Attitude : %s", msg->header.frame_id.c_str());
 	double px = msg->pose.position.x;
 	double py = msg->pose.position.y;
 	double pz = msg->pose.position.z;
@@ -25,19 +25,17 @@ void attitudeCallback(
 void markerCallback(
 		const visualization_msgs::MarkerArray::ConstPtr& markers) {
 	int size = markers->markers.size();
-	ROS_INFO("%d markers sent", size);
+	//ROS_INFO("%d markers sent", size);
 
 	for (int i = 0; i < size; i++) {
-		ROS_INFO("x %f y %f z %f", markers->markers[i].pose.position.x,
-				markers->markers[i].pose.position.y,
-				markers->markers[i].pose.position.z);
+		//ROS_INFO("x %f y %f z %f", markers->markers[i].pose.position.x,
+		//		markers->markers[i].pose.position.y,
+		//		markers->markers[i].pose.position.z);
 
-		//terrainView->insertPoint(markers->markers[i].pose.position.x,
-		//                         markers->markers[i].pose.position.y,
-		//                         markers->markers[i].pose.position.z);
+		terrainView->insertPoint(markers->markers[i].pose.position.x,
+		                         markers->markers[i].pose.position.y,
+		                         markers->markers[i].pose.position.z);
 	}
-
-	//terrainView->flush();
 }
 
 int main(int argc, char **argv) {

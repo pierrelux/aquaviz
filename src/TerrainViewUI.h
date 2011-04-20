@@ -1,6 +1,10 @@
 #ifndef TerrainViewUI_H
 #define TerrainViewUI_H
 
+#include "widget/ScaleActor.h"
+#include "widget/TerrainActor.h"
+#include "widget/RobotAttitudeWidget.h"
+
 #include "vtkSmartPointer.h"
 #include <vtkPoints.h>
 #include <vtkMath.h>
@@ -12,8 +16,6 @@
 #include <vtkTransform.h>
 #include <vtkActor.h>
 #include <vtkCubeSource.h>
-#include "widget/RobotAttitudeWidget.h"
-#include "widget/ScaleActor.h"
 
 #include <QMainWindow>
 
@@ -73,40 +75,14 @@ public:
 	void flush();
 
 public slots:
-
 	virtual void slotExit();
 	virtual void slotConnect();
-
-protected:
-	/**
-	 * Generate a set of random points.
-	 * For testing purpose only.
-	 * @param gridSize The desired grid size.
-	 * @return The generated random points in a vtkPoints object.
-	 */
-	static vtkSmartPointer<vtkPoints> generateRandomPoints(
-			unsigned int gridSize) {
-		// Create points on an XY grid with random Z coordinate
-		vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-
-		for (unsigned int x = 0; x < gridSize; x++) {
-			for (unsigned int y = 0; y < gridSize; y++) {
-				points->InsertNextPoint(x, y, vtkMath::Random(0.0, 3.0));
-			}
-		}
-
-		return points;
-	}
-
 protected slots:
 
 private:
-	vtkSmartPointer<vtkPoints> points;
-	vtkSmartPointer<vtkPolyData> polydata;
-	vtkSmartPointer<vtkDelaunay2D> delaunay;
-
 	vtkMutexLock* renderLock;
-	vtkSmartPointer<vtkActor> cubeActor;
+	vtkSmartPointer<vtkActor> robotActor;
+	vtkSmartPointer<TerrainActor> terrainActor;
 	vtkSmartPointer<RobotAttitudeWidget> robotAttitudeWidget;
 
 	// Old quaternion
@@ -115,6 +91,10 @@ private:
 	// Designer form
 	Ui_TerrainView *ui;
 
+	/**
+	 * Rendering Callback. Refreshes the display at a
+	 * constant interval.
+	 */
 	class RenderingTimerCallback: public vtkCommand {
 	public:
 		RenderingTimerCallback(TerrainView* parent, vtkSmartPointer<vtkRenderWindow> renderWindow) :
@@ -126,7 +106,7 @@ private:
 				void *vtkNotUsed(callData)) {
 			//std::cout << "refreshing" << std::endl;
 			parent->renderLock->Lock();
-				renderWindow->Render();
+			renderWindow->Render();
 			parent->renderLock->Unlock();
 		}
 	private:
@@ -145,8 +125,6 @@ private:
 	 * @return A robot actor.
 	 */
 	vtkSmartPointer<vtkActor> createRobotModel();
-
-	vtkSmartPointer<vtkTransform> reverseRotation;
 };
 
 #endif // TerrainViewUI_H

@@ -6,82 +6,56 @@
 #include "util/Quaternion.h"
 
 #include <vtkRenderer.h>
+#include <vtkCubeSource.h>
 #include <vtkRenderWindow.h>
 #include <vtkSmartPointer.h>
-#include <vtkCubeSource.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkCamera.h>
 #include <qinputdialog.h>
 #include <vtkProperty.h>
 #include <vtkPlaneSource.h>
-#include <vtkInteractorStyleJoystickCamera.h>
 #include <vtkMath.h>
 #include <vtkMatrix4x4.h>
 #include <vtkAxesActor.h>
 #include <vtkAxisActor2D.h>
 #include <vtkCommand.h>
+#include <vtkInteractorStyleJoystickCamera.h>
 
 // Constructor
 TerrainView::TerrainView() {
 	this->ui = new Ui_TerrainView;
 	this->ui->setupUi(this);
 
-	oldQuaternion = new Quaternion(0,0,0,1);
-	reverseRotation = vtkSmartPointer<vtkTransform>::New();
-	reverseRotation->Identity();
-	reverseRotation->PostMultiply();
-
 	// Used back the rendering callback to synchronize
 	// new update/recomputation
 	renderLock = vtkMutexLock::New();
 
-	// Create a set of source points
-	points = vtkSmartPointer<vtkPoints>::New();
-	points->SetDataTypeToDouble();
-
-	polydata = vtkSmartPointer<vtkPolyData>::New();
-	polydata->SetPoints(points);
-
-	// Create a Delaunay filter
-	delaunay = vtkSmartPointer<vtkDelaunay2D>::New();
-	delaunay->SetInput(polydata);
-	delaunay->Update();
-
-	// Create a mapper for the triangulation
-	vtkSmartPointer<vtkPolyDataMapper> triangulatedMapper = vtkSmartPointer<
-			vtkPolyDataMapper>::New();
-	triangulatedMapper->SetInputConnection(delaunay->GetOutputPort());
-
-	// Create delaunay actor
-	vtkSmartPointer<vtkActor> triangulatedActor =
-			vtkSmartPointer<vtkActor>::New();
-	triangulatedActor->SetMapper(triangulatedMapper);
+	// Used to rotate the actor back to the origin
+	oldQuaternion = new Quaternion(0,0,0,1);
 
 	// Create robot model actor
-	cubeActor = createRobotModel();
+	robotActor = createRobotModel();
+
+	// Terrain actor
+	terrainActor = vtkSmartPointer<TerrainActor>::New();
 
 	// Create a ground plane actor
 	vtkSmartPointer<vtkActor> groundPlaneActor = createGroundPlane();
 
-	// Create a axes actor
-	vtkSmartPointer<vtkAxesActor> axesActor =
-			vtkSmartPointer<vtkAxesActor>::New();
+	// Create a axes actor at the origin
+	vtkSmartPointer<vtkAxesActor> axesActor = vtkSmartPointer<vtkAxesActor>::New();
 
 	// Create camera for renderer
 	vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
 	camera->SetPosition(-4, 0, 1.0);
 	camera->SetViewUp(0, 0, 1);
 
-	vtkSmartPointer<ScaleActor> elevationActor = vtkSmartPointer<ScaleActor>::New();
-
-
 	// VTK Renderer
 	vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-	renderer->AddActor(cubeActor);
-	renderer->AddActor(triangulatedActor);
+	renderer->AddActor(robotActor);
+	renderer->AddActor(terrainActor);
 	renderer->AddActor(groundPlaneActor);
 	renderer->AddActor(axesActor);
-	renderer->AddActor(elevationActor);
 
 	renderer->SetBackground(.5, .5, 1.0);
 	renderer->SetActiveCamera(camera);
@@ -147,11 +121,11 @@ vtkSmartPointer<vtkActor> TerrainView::createRobotModel() {
 	vtkSmartPointer<vtkPolyDataMapper> cubeMapper = vtkSmartPointer<
 			vtkPolyDataMapper>::New();
 	cubeMapper->SetInputConnection(cubeSource->GetOutputPort());
-	vtkSmartPointer<vtkActor> cubeActor = vtkSmartPointer<vtkActor>::New();
-	cubeActor->SetMapper(cubeMapper);
-	cubeActor->GetProperty()->SetColor(1, 1, 0);
+	vtkSmartPointer<vtkActor> robotActor = vtkSmartPointer<vtkActor>::New();
+	robotActor->SetMapper(cubeMapper);
+	robotActor->GetProperty()->SetColor(1, 1, 0);
 
-	return cubeActor;
+	return robotActor;
 }
 
 void TerrainView::slotExit() {
@@ -165,12 +139,6 @@ void TerrainView::slotConnect() {
 			"127.0.0.1"), &ok);
 	if (ok && !text.isEmpty()) {
 	}
-}
-
-void TerrainView::insertPoint(double x, double y, double z) {
-	renderLock->Lock();
-	points->InsertNextPoint(x, y, z);
-	renderLock->Unlock();
 }
 
 void TerrainView::setIMURotation(double x, double y, double z, double w) {
@@ -200,7 +168,7 @@ void TerrainView::setIMURotation(double x, double y, double z, double w) {
 
 		// Rotate the robot back to the origin
 		double position[3];
-		cubeActor->GetPosition(position);
+		robotActor->GetPosition(position);
 		transform->Translate(-position[0], -position[1], -position[2]);
 
 		// Rotate the robot according to the quaternion
@@ -209,8 +177,8 @@ void TerrainView::setIMURotation(double x, double y, double z, double w) {
 		// Translate the robot forward with the new position
 		transform->Translate(position);
 
-		cubeActor->SetUserTransform(transform);
-		cubeActor->Modified();
+		robotActor->SetUserTransform(transform);
+		robotActor->Modified();
 
 		robotAttitudeWidget->onIMUPoseUpdate(rotation);
 
@@ -221,24 +189,12 @@ void TerrainView::setIMURotation(double x, double y, double z, double w) {
 
 void TerrainView::setIMUPosition(double x, double y, double z) {
 	renderLock->Lock();
-		cubeActor->SetPosition(x,y,z);
+	robotActor->SetPosition(x,y,z);
 	renderLock->Unlock();
 }
 
-void TerrainView::clear() {
+void TerrainView::insertPoint(double x, double y, double z) {
 	renderLock->Lock();
-	{
-		points->Reset();
-	}
+	terrainActor->insertPoint(x, y, z);
 	renderLock->Unlock();
 }
-
-void TerrainView::flush() {
-	renderLock->Lock();
-	{
-		delaunay->Update();
-		polydata->Modified();
-	}
-	renderLock->Unlock();
-}
-
