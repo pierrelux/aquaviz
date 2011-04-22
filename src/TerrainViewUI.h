@@ -84,9 +84,9 @@ private:
 	vtkSmartPointer<vtkActor> robotActor;
 	vtkSmartPointer<TerrainActor> terrainActor;
 	vtkSmartPointer<RobotAttitudeWidget> robotAttitudeWidget;
+	vtkSmartPointer<vtkRenderer> renderer;
 
-	// Old quaternion
-	Quaternion* oldQuaternion;
+	vtkSmartPointer<vtkMatrix4x4> oldRotation;
 
 	// Designer form
 	Ui_TerrainView *ui;
