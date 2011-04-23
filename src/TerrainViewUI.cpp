@@ -43,7 +43,7 @@ TerrainView::TerrainView() {
 	vtkSmartPointer<vtkAxesActor> axesActor = vtkSmartPointer<vtkAxesActor>::New();
 
 	// Create camera for renderer
-	vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
+	camera = vtkSmartPointer<vtkCamera>::New();
 	camera->SetPosition(-4, 0, 1.0);
 	camera->SetViewUp(0, 0, 1);
 
@@ -86,6 +86,20 @@ TerrainView::TerrainView() {
 			slotConnect()));
 }
 
+
+void TerrainView::slotExit() {
+	qApp->exit();
+}
+
+void TerrainView::slotConnect() {
+	bool ok;
+	QString text = QInputDialog::getText(this, tr("Connect"), tr(
+			"Enter the ROS node to connect to:"), QLineEdit::Normal, tr(
+			"127.0.0.1"), &ok);
+	if (ok && !text.isEmpty()) {
+	}
+}
+
 vtkSmartPointer<vtkActor> TerrainView::createGroundPlane() {
 	vtkSmartPointer<vtkPlaneSource> planeSource = vtkSmartPointer<
 			vtkPlaneSource>::New();
@@ -108,39 +122,10 @@ vtkSmartPointer<vtkActor> TerrainView::createGroundPlane() {
 	return groundPlaneActor;
 }
 
-vtkSmartPointer<vtkActor> TerrainView::createRobotModel() {
-	vtkSmartPointer<vtkCubeSource> cubeSource =
-			vtkSmartPointer<vtkCubeSource>::New();
-	cubeSource->SetYLength(0.25);
-	cubeSource->SetXLength(0.50);
-	cubeSource->SetZLength(0.10);
-
-	vtkSmartPointer<vtkPolyDataMapper> cubeMapper = vtkSmartPointer<
-			vtkPolyDataMapper>::New();
-	cubeMapper->SetInputConnection(cubeSource->GetOutputPort());
-	vtkSmartPointer<vtkActor> robotActor = vtkSmartPointer<vtkActor>::New();
-	robotActor->SetMapper(cubeMapper);
-	robotActor->GetProperty()->SetColor(1, 1, 0);
-
-	return robotActor;
-}
-
-void TerrainView::slotExit() {
-	qApp->exit();
-}
-
-void TerrainView::slotConnect() {
-	bool ok;
-	QString text = QInputDialog::getText(this, tr("Connect"), tr(
-			"Enter the ROS node to connect to:"), QLineEdit::Normal, tr(
-			"127.0.0.1"), &ok);
-	if (ok && !text.isEmpty()) {
-	}
-}
-
 void TerrainView::setIMURotation(double x, double y, double z, double w) {
 	renderLock->Lock();
 	robotActor->setIMURotation(x,y,z,w);
+	robotAttitudeWidget->setIMURotation(x,y,z,w);
 	renderLock->Unlock();
 }
 

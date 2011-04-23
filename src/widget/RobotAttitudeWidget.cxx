@@ -1,5 +1,9 @@
 #include "RobotAttitudeWidget.h"
 
+#include "../util/QuaternionToRotationMatrix.h"
+#include "../util/RotationMatrix3x3To4x4.h"
+#include "../util/Quaternion.h"
+
 #include <vtkCubeSource.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkAxesActor.h>
@@ -8,7 +12,8 @@
 #include <vtkRenderWindow.h>
 #include <vtkProperty.h>
 #include <vtkCommand.h>
-
+#include <vtkSmartPointer.h>
+#include <vtkTransform.h>
 #include <vtkObjectFactory.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkCamera.h>
@@ -102,9 +107,36 @@ void RobotAttitudeWidget::PrintSelf(std::ostream& os, vtkIndent indent) {
 	os << indent << "RobotAttitudeWidget:" << endl;
 }
 
-void RobotAttitudeWidget::onIMUPoseUpdate(vtkMatrix4x4* matrix)
-{
-	robotActor->SetUserMatrix(matrix);
+void RobotAttitudeWidget::setIMURotation(double x, double y, double z, double w) {
+	// Convert quaternion to 3x3 rotation matrix
+	QuaternionToRotationMatrix quatToRot;
+	boost::numeric::ublas::matrix<double> rotationMatrix3x3 =
+			boost::numeric::ublas::trans(quatToRot(x, y, z, w));
+
+	// Convert 3x3 rotation matrix to 4x4
+	RotationMatrix3x3To4x4 rot3To4;
+	boost::numeric::ublas::matrix<double> rotationMatrix4x4 = rot3To4(
+			rotationMatrix3x3);
+
+	// Convert to vtkMatrix4x4
+	vtkSmartPointer<vtkMatrix4x4> rotation =
+			vtkSmartPointer<vtkMatrix4x4>::New();
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			rotation->SetElement(i, j, rotationMatrix4x4(i, j));
+		}
+	}
+
+	// Robot model
+	vtkSmartPointer<vtkTransform> transform =
+			vtkSmartPointer<vtkTransform>::New();
+	transform->Identity();
+	transform->PostMultiply();
+
+	// Rotate the robot according to the quaternion
+	transform->Concatenate(rotation);
+
+	robotActor->SetUserTransform(transform);
 	robotActor->Modified();
 }
 

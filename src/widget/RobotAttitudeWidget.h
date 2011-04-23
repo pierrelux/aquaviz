@@ -32,7 +32,7 @@ public:
 	/**
 	 * @param
 	 */
-	void onIMUPoseUpdate(vtkMatrix4x4* matrix);
+	void setIMURotation(double x, double y, double z, double w);
 
 protected:
 	RobotAttitudeWidget();

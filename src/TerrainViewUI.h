@@ -10,13 +10,12 @@
 #include <vtkPoints.h>
 #include <vtkMath.h>
 #include <vtkMutexLock.h>
-#include <vtkDelaunay2D.h>
 #include <vtkCommand.h>
 #include <vtkPolyData.h>
 #include <vtkRenderWindow.h>
 #include <vtkTransform.h>
 #include <vtkActor.h>
-#include <vtkCubeSource.h>
+#include <vtkCamera.h>
 
 #include <QMainWindow>
 
@@ -86,6 +85,7 @@ private:
 	vtkSmartPointer<TerrainActor> terrainActor;
 	vtkSmartPointer<RobotAttitudeWidget> robotAttitudeWidget;
 	vtkSmartPointer<vtkRenderer> renderer;
+	vtkSmartPointer<vtkCamera> camera;
 
 	vtkSmartPointer<vtkMatrix4x4> oldRotation;
 
@@ -120,12 +120,6 @@ private:
 	 * @return A plane actor.
 	 */
 	vtkSmartPointer<vtkActor> createGroundPlane();
-
-	/**
-	 * Create a simplified model of the robot in 3D
-	 * @return A robot actor.
-	 */
-	vtkSmartPointer<vtkActor> createRobotModel();
 };
 
 #endif // TerrainViewUI_H
