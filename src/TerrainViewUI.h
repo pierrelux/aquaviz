@@ -2,6 +2,7 @@
 #define TerrainViewUI_H
 
 #include "widget/ScaleActor.h"
+#include "widget/RobotActor.h"
 #include "widget/TerrainActor.h"
 #include "widget/RobotAttitudeWidget.h"
 
@@ -81,7 +82,7 @@ protected slots:
 
 private:
 	vtkMutexLock* renderLock;
-	vtkSmartPointer<vtkActor> robotActor;
+	vtkSmartPointer<RobotActor> robotActor;
 	vtkSmartPointer<TerrainActor> terrainActor;
 	vtkSmartPointer<RobotAttitudeWidget> robotAttitudeWidget;
 	vtkSmartPointer<vtkRenderer> renderer;

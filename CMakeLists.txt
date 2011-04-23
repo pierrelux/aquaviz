@@ -54,7 +54,8 @@ QT4_WRAP_CPP(MOCSrcs ${TerrainViewHeaders} )
 
 SET(Widgets_sources  src/widget/RobotAttitudeWidget.cxx
                      src/widget/ScaleActor.cxx
-                     src/widget/TerrainActor.cxx)
+                     src/widget/TerrainActor.cxx
+                     src/widget/RobotActor.cxx)
 
 ADD_LIBRARY(CustomWidgets STATIC ${Widgets_sources})
 rosbuild_add_executable(listener ${TerrainViewSrcs} ${UISrcs} ${MOCSrcs})

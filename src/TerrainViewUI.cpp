@@ -31,7 +31,7 @@ TerrainView::TerrainView() {
 	renderLock = vtkMutexLock::New();
 
 	// Create robot model actor
-	robotActor = createRobotModel();
+	robotActor = vtkSmartPointer<RobotActor>::New();
 
 	// Terrain actor
 	terrainActor = vtkSmartPointer<TerrainActor>::New();
@@ -140,76 +140,13 @@ void TerrainView::slotConnect() {
 
 void TerrainView::setIMURotation(double x, double y, double z, double w) {
 	renderLock->Lock();
-		// Convert quaternion to 3x3 rotation matrix
-		QuaternionToRotationMatrix quatToRot;
-		boost::numeric::ublas::matrix<double> rotationMatrix3x3 = boost::numeric::ublas::trans(quatToRot(x,y,z,w));
-
-		// Convert 3x3 rotation matrix to 4x4
-		RotationMatrix3x3To4x4 rot3To4;
-		boost::numeric::ublas::matrix<double> rotationMatrix4x4 = rot3To4(rotationMatrix3x3);
-
-		// Convert to vtkMatrix4x4
-		vtkSmartPointer<vtkMatrix4x4> rotation = vtkSmartPointer<vtkMatrix4x4>::New();
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				rotation->SetElement(i, j, rotationMatrix4x4(i, j));
-			}
-		}
-
-		// Get current position
-		double position[3];
-		robotActor->GetPosition(position);
-
-		// Plot axes
-//		vtkSmartPointer<vtkAxesActor> axesActor = vtkSmartPointer<vtkAxesActor>::New();
-//		axesActor->SetAxisLabels(0);
-//		vtkSmartPointer<vtkTransform> transformActor = vtkSmartPointer<vtkTransform>::New();
-//		transformActor->Identity();
-//		transformActor->PostMultiply();
-//
-//		boost::numeric::ublas::matrix<double> rotationMatrix3x3Axes = boost::numeric::ublas::trans(quatToRot(x, y, z, w));
-//
-//		boost::numeric::ublas::matrix<double> rotationMatrix4x4Axes = rot3To4(rotationMatrix3x3Axes);
-//
-//		vtkSmartPointer<vtkMatrix4x4> rotationAxes = vtkSmartPointer<vtkMatrix4x4>::New();
-//		for (int i = 0; i < 4; i++) {
-//			for (int j = 0; j < 4; j++) {
-//				rotationAxes->SetElement(i, j, rotationMatrix4x4Axes(i, j));
-//			}
-//		}
-//
-//
-//		transformActor->Concatenate(rotationAxes);
-//		transformActor->Translate(position);
-//		axesActor->SetUserTransform(transformActor);
-//		axesActor->Modified();
-//		renderer->AddActor(axesActor);
-
-		// Robot model
-		vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
-		transform->Identity();
-		transform->PostMultiply();
-
-		// Rotate the robot back to the origin
-		transform->Translate(-position[0], -position[1], -position[2]);
-
-		// Rotate the robot according to the quaternion
-		transform->Concatenate(rotation);
-
-		// Translate the robot forward with the new position
-		transform->Translate(position);
-
-		robotActor->SetUserTransform(transform);
-		robotActor->Modified();
-
-		robotAttitudeWidget->onIMUPoseUpdate(rotation);
-
+	robotActor->setIMURotation(x,y,z,w);
 	renderLock->Unlock();
 }
 
 void TerrainView::setIMUPosition(double x, double y, double z) {
 	renderLock->Lock();
-	robotActor->SetPosition(x,y,z);
+	robotActor->setIMUPosition(x,y,z);
 	renderLock->Unlock();
 }
 
