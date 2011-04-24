@@ -59,7 +59,18 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="actionAttitude"/>
+    <addaction name="actionFrame"/>
+    <addaction name="actionGroundPlane"/>
+    <addaction name="actionOrigin"/>
+    <addaction name="actionTerrain"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -104,6 +115,52 @@
   <action name="actionAbout">
    <property name="text">
     <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="actionAttitude">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Attitude</string>
+   </property>
+  </action>
+  <action name="actionTerrain">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Terrain</string>
+   </property>
+  </action>
+  <action name="actionFrame">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Frames Trace</string>
+   </property>
+  </action>
+  <action name="actionGroundPlane">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Ground Plane</string>
+   </property>
+  </action>
+  <action name="actionOrigin">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Origin</string>
    </property>
   </action>
  </widget>

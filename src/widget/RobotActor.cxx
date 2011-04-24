@@ -180,3 +180,9 @@ void RobotActor::setIMUPosition(double x, double y, double z) {
 	this->Assembly->SetPosition(x, y, z);
 	this->Assembly->Modified();
 }
+
+void RobotActor::GetPosition(double position[3])
+{
+	this->Assembly->GetPosition(position);
+}
+

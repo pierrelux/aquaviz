@@ -63,6 +63,8 @@ public:
 
   void setIMUPosition(double x, double y, double z);
 
+  void GetPosition(double position[3]);
+
 protected:
   RobotActor();
   ~RobotActor();

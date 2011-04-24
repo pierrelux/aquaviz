@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'TerrainViewUI.ui'
 **
-** Created: Fri Apr 22 17:07:44 2011
+** Created: Sun Apr 24 14:25:47 2011
 **      by: Qt User Interface Compiler version 4.7.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -36,6 +36,11 @@ public:
     QAction *actionConnect;
     QAction *actionQuit;
     QAction *actionAbout;
+    QAction *actionAttitude;
+    QAction *actionTerrain;
+    QAction *actionFrame;
+    QAction *actionGroundPlane;
+    QAction *actionOrigin;
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout_2;
     QVBoxLayout *verticalLayout;
@@ -43,6 +48,7 @@ public:
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *menuHelp;
+    QMenu *menuView;
     QStatusBar *statusBar;
 
     void setupUi(QMainWindow *TerrainView)
@@ -67,6 +73,23 @@ public:
         actionQuit->setObjectName(QString::fromUtf8("actionQuit"));
         actionAbout = new QAction(TerrainView);
         actionAbout->setObjectName(QString::fromUtf8("actionAbout"));
+        actionAttitude = new QAction(TerrainView);
+        actionAttitude->setObjectName(QString::fromUtf8("actionAttitude"));
+        actionAttitude->setCheckable(true);
+        actionAttitude->setChecked(true);
+        actionTerrain = new QAction(TerrainView);
+        actionTerrain->setObjectName(QString::fromUtf8("actionTerrain"));
+        actionTerrain->setCheckable(true);
+        actionFrame = new QAction(TerrainView);
+        actionFrame->setObjectName(QString::fromUtf8("actionFrame"));
+        actionFrame->setCheckable(true);
+        actionGroundPlane = new QAction(TerrainView);
+        actionGroundPlane->setObjectName(QString::fromUtf8("actionGroundPlane"));
+        actionGroundPlane->setCheckable(true);
+        actionGroundPlane->setChecked(true);
+        actionOrigin = new QAction(TerrainView);
+        actionOrigin->setObjectName(QString::fromUtf8("actionOrigin"));
+        actionOrigin->setCheckable(true);
         centralwidget = new QWidget(TerrainView);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         verticalLayout_2 = new QVBoxLayout(centralwidget);
@@ -96,16 +119,24 @@ public:
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         menuHelp = new QMenu(menuBar);
         menuHelp->setObjectName(QString::fromUtf8("menuHelp"));
+        menuView = new QMenu(menuBar);
+        menuView->setObjectName(QString::fromUtf8("menuView"));
         TerrainView->setMenuBar(menuBar);
         statusBar = new QStatusBar(TerrainView);
         statusBar->setObjectName(QString::fromUtf8("statusBar"));
         TerrainView->setStatusBar(statusBar);
 
         menuBar->addAction(menuFile->menuAction());
+        menuBar->addAction(menuView->menuAction());
         menuBar->addAction(menuHelp->menuAction());
         menuFile->addAction(actionConnect);
         menuFile->addAction(actionQuit);
         menuHelp->addAction(actionAbout);
+        menuView->addAction(actionAttitude);
+        menuView->addAction(actionFrame);
+        menuView->addAction(actionGroundPlane);
+        menuView->addAction(actionOrigin);
+        menuView->addAction(actionTerrain);
 
         retranslateUi(TerrainView);
 
@@ -123,8 +154,14 @@ public:
         actionConnect->setText(QApplication::translate("TerrainView", "&Connect", 0, QApplication::UnicodeUTF8));
         actionQuit->setText(QApplication::translate("TerrainView", "&Quit", 0, QApplication::UnicodeUTF8));
         actionAbout->setText(QApplication::translate("TerrainView", "&About", 0, QApplication::UnicodeUTF8));
+        actionAttitude->setText(QApplication::translate("TerrainView", "&Attitude", 0, QApplication::UnicodeUTF8));
+        actionTerrain->setText(QApplication::translate("TerrainView", "&Terrain", 0, QApplication::UnicodeUTF8));
+        actionFrame->setText(QApplication::translate("TerrainView", "&Frames Trace", 0, QApplication::UnicodeUTF8));
+        actionGroundPlane->setText(QApplication::translate("TerrainView", "&Ground Plane", 0, QApplication::UnicodeUTF8));
+        actionOrigin->setText(QApplication::translate("TerrainView", "&Origin", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("TerrainView", "&File", 0, QApplication::UnicodeUTF8));
         menuHelp->setTitle(QApplication::translate("TerrainView", "&Help", 0, QApplication::UnicodeUTF8));
+        menuView->setTitle(QApplication::translate("TerrainView", "&View", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

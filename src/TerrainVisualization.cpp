@@ -32,9 +32,9 @@ void markerCallback(
 		//		markers->markers[i].pose.position.y,
 		//		markers->markers[i].pose.position.z);
 
-		//terrainView->insertPoint(markers->markers[i].pose.position.x,
-		 //                        markers->markers[i].pose.position.y,
-		 //                        markers->markers[i].pose.position.z);
+		terrainView->insertPoint(markers->markers[i].pose.position.x,
+		                         markers->markers[i].pose.position.y,
+		                         markers->markers[i].pose.position.z);
 	}
 }
 

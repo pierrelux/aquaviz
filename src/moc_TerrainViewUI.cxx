@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'TerrainViewUI.h'
 **
-** Created: Sat Apr 23 00:25:48 2011
+** Created: Sun Apr 24 14:25:34 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_TerrainView[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       7,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -31,14 +31,21 @@ static const uint qt_meta_data_TerrainView[] = {
        0,       // signalCount
 
  // slots: signature, parameters, type, tag, flags
-      13,   12,   12,   12, 0x0a,
-      24,   12,   12,   12, 0x0a,
+      13,   12,   12,   12, 0x09,
+      24,   12,   12,   12, 0x09,
+      38,   12,   12,   12, 0x09,
+      52,   12,   12,   12, 0x09,
+      64,   12,   12,   12, 0x09,
+      79,   12,   12,   12, 0x09,
+      97,   12,   12,   12, 0x09,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_TerrainView[] = {
     "TerrainView\0\0slotExit()\0slotConnect()\0"
+    "slotTerrain()\0slotFrame()\0slotAttitude()\0"
+    "slotGroundPlane()\0slotOrigin()\0"
 };
 
 const QMetaObject TerrainView::staticMetaObject = {
@@ -72,9 +79,14 @@ int TerrainView::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         switch (_id) {
         case 0: slotExit(); break;
         case 1: slotConnect(); break;
+        case 2: slotTerrain(); break;
+        case 3: slotFrame(); break;
+        case 4: slotAttitude(); break;
+        case 5: slotGroundPlane(); break;
+        case 6: slotOrigin(); break;
         default: ;
         }
-        _id -= 2;
+        _id -= 7;
     }
     return _id;
 }

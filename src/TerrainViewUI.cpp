@@ -28,7 +28,8 @@ TerrainView::TerrainView() {
 
 	// Used back the rendering callback to synchronize
 	// new update/recomputation
-	renderLock = vtkMutexLock::New();
+	renderLock = vtkMutexLock::New(); // TODO Delete !
+	framesLock = vtkMutexLock::New();
 
 	// Create robot model actor
 	robotActor = vtkSmartPointer<RobotActor>::New();
@@ -37,10 +38,14 @@ TerrainView::TerrainView() {
 	terrainActor = vtkSmartPointer<TerrainActor>::New();
 
 	// Create a ground plane actor
-	vtkSmartPointer<vtkActor> groundPlaneActor = createGroundPlane();
+	groundPlaneActor = createGroundPlane();
 
 	// Create a axes actor at the origin
-	vtkSmartPointer<vtkAxesActor> axesActor = vtkSmartPointer<vtkAxesActor>::New();
+	axesActor = vtkSmartPointer<vtkAxesActor>::New();
+	axesActor->SetZAxisLabelText("Z Origin");
+	axesActor->SetVisibility(0);
+
+	vtkSmartPointer<ScaleActor> scale = vtkSmartPointer<ScaleActor>::New();
 
 	// Create camera for renderer
 	camera = vtkSmartPointer<vtkCamera>::New();
@@ -53,6 +58,7 @@ TerrainView::TerrainView() {
 	renderer->AddActor(terrainActor);
 	renderer->AddActor(groundPlaneActor);
 	renderer->AddActor(axesActor);
+	renderer->AddActor(scale);
 
 	renderer->SetBackground(.5, .5, 1.0);
 	renderer->SetActiveCamera(camera);
@@ -82,10 +88,13 @@ TerrainView::TerrainView() {
 	// Set up action signals and slots
 	connect(this->ui->actionExit, SIGNAL(triggered()), this, SLOT(slotExit()));
 	connect(this->ui->actionQuit, SIGNAL(triggered()), this, SLOT(slotExit()));
-	connect(this->ui->actionConnect, SIGNAL(triggered()), this, SLOT(
-			slotConnect()));
+	connect(this->ui->actionConnect, SIGNAL(triggered()), this, SLOT(slotConnect()));
+	connect(this->ui->actionTerrain, SIGNAL(triggered()), this, SLOT(slotTerrain()));
+	connect(this->ui->actionFrame, SIGNAL(triggered()), this, SLOT(slotFrame()));
+	connect(this->ui->actionAttitude, SIGNAL(triggered()), this, SLOT(slotAttitude()));
+	connect(this->ui->actionGroundPlane, SIGNAL(triggered()), this, SLOT(slotGroundPlane()));
+	connect(this->ui->actionOrigin, SIGNAL(triggered()), this, SLOT(slotOrigin()));
 }
-
 
 void TerrainView::slotExit() {
 	qApp->exit();
@@ -97,6 +106,61 @@ void TerrainView::slotConnect() {
 			"Enter the ROS node to connect to:"), QLineEdit::Normal, tr(
 			"127.0.0.1"), &ok);
 	if (ok && !text.isEmpty()) {
+	}
+}
+
+void TerrainView::slotTerrain()
+{
+	if (this->ui->actionTerrain->isChecked()) {
+		terrainActor->SetVisibility(1);
+	} else {
+		terrainActor->SetVisibility(0);
+	}
+}
+
+void TerrainView::setFramesVisibility(int v)
+{
+	framesLock->Lock();
+	std::vector<vtkAxesActor*>::iterator it;
+	for (it = frames.begin(); it != frames.end(); it++) {
+		(*it)->SetVisibility(v);
+	}
+	framesLock->Unlock();
+}
+
+void TerrainView::slotFrame()
+{
+	if (this->ui->actionFrame->isChecked()) {
+		setFramesVisibility(1);
+	} else {
+		setFramesVisibility(0);
+	}
+}
+
+void TerrainView::slotAttitude()
+{
+	if (this->ui->actionAttitude->isChecked()) {
+		robotAttitudeWidget->SetEnabled(1);
+	} else {
+		robotAttitudeWidget->SetEnabled(0);
+	}
+}
+
+void TerrainView::slotGroundPlane()
+{
+	if (this->ui->actionGroundPlane->isChecked()) {
+		groundPlaneActor->SetVisibility(1);
+	} else {
+		groundPlaneActor->SetVisibility(0);
+	}
+}
+
+void TerrainView::slotOrigin()
+{
+	if (this->ui->actionOrigin->isChecked()) {
+		axesActor->SetVisibility(1);
+	} else {
+		axesActor->SetVisibility(0);
 	}
 }
 
@@ -122,10 +186,59 @@ vtkSmartPointer<vtkActor> TerrainView::createGroundPlane() {
 	return groundPlaneActor;
 }
 
+void TerrainView::plotFrame(double x, double y, double z, double w)
+{
+	vtkSmartPointer<vtkAxesActor> frame = vtkSmartPointer<vtkAxesActor>::New();
+	frame->SetAxisLabels(0);
+
+	// Convert quaternion to 3x3 rotation matrix
+	QuaternionToRotationMatrix quatToRot;
+	boost::numeric::ublas::matrix<double> rotationMatrix3x3 =
+			boost::numeric::ublas::trans(quatToRot(x, y, z, w));
+
+	// Convert 3x3 rotation matrix to 4x4
+	RotationMatrix3x3To4x4 rot3To4;
+	boost::numeric::ublas::matrix<double> rotationMatrix4x4 = rot3To4(
+			rotationMatrix3x3);
+
+	// Convert to vtkMatrix4x4
+	vtkSmartPointer<vtkMatrix4x4> rotation =
+			vtkSmartPointer<vtkMatrix4x4>::New();
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			rotation->SetElement(i, j, rotationMatrix4x4(i, j));
+		}
+	}
+
+	vtkSmartPointer<vtkTransform> transform =
+			vtkSmartPointer<vtkTransform>::New();
+	transform->Identity();
+	transform->PostMultiply();
+
+	// Rotate the axes according to the quaternion
+	transform->Concatenate(rotation);
+
+	double position[3];
+	robotActor->GetPosition(position);
+	transform->Translate(position);
+
+	frame->SetUserTransform(transform);
+	frame->Modified();
+	renderer->AddActor(frame);
+
+	framesLock->Lock();
+	frames.push_back(frame);
+	framesLock->Unlock();
+}
+
 void TerrainView::setIMURotation(double x, double y, double z, double w) {
 	renderLock->Lock();
 	robotActor->setIMURotation(x,y,z,w);
 	robotAttitudeWidget->setIMURotation(x,y,z,w);
+
+	if (this->ui->actionFrame->isChecked()) {
+		plotFrame(x, y, z, w);
+	}
 	renderLock->Unlock();
 }
 
@@ -137,6 +250,8 @@ void TerrainView::setIMUPosition(double x, double y, double z) {
 
 void TerrainView::insertPoint(double x, double y, double z) {
 	renderLock->Lock();
-	terrainActor->insertPoint(x, y, z);
+	if (this->ui->actionTerrain->isChecked()) {
+		terrainActor->insertPoint(x, y, z);
+	}
 	renderLock->Unlock();
 }

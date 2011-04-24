@@ -16,6 +16,9 @@
 #include <vtkTransform.h>
 #include <vtkActor.h>
 #include <vtkCamera.h>
+#include <vtkActorCollection.h>
+
+#include <vector>
 
 #include <QMainWindow>
 
@@ -74,20 +77,29 @@ public:
 	 */
 	void flush();
 
-public slots:
+protected slots:
 	virtual void slotExit();
 	virtual void slotConnect();
-protected slots:
+	virtual void slotTerrain();
+	virtual void slotFrame();
+	virtual void slotAttitude();
+	virtual void slotGroundPlane();
+	virtual void slotOrigin();
 
 private:
 	vtkMutexLock* renderLock;
+
 	vtkSmartPointer<RobotActor> robotActor;
 	vtkSmartPointer<TerrainActor> terrainActor;
 	vtkSmartPointer<RobotAttitudeWidget> robotAttitudeWidget;
 	vtkSmartPointer<vtkRenderer> renderer;
 	vtkSmartPointer<vtkCamera> camera;
 
-	vtkSmartPointer<vtkMatrix4x4> oldRotation;
+	vtkSmartPointer<vtkActor> groundPlaneActor;
+
+	vtkSmartPointer<vtkAxesActor> axesActor;
+	vtkMutexLock* framesLock;
+	std::vector<vtkAxesActor*> frames;
 
 	// Designer form
 	Ui_TerrainView *ui;
@@ -120,6 +132,10 @@ private:
 	 * @return A plane actor.
 	 */
 	vtkSmartPointer<vtkActor> createGroundPlane();
+
+	void setFramesVisibility(int v);
+
+	void plotFrame(double x, double y, double z, double w);
 };
 
 #endif // TerrainViewUI_H

@@ -71,14 +71,6 @@ void ScaleActor::BuildRepresentation(vtkViewport *viewport) {
 	axis->GetPosition2Coordinate()-> SetValue(
 			size[0] - this->RightBorderOffset, size[1] - 2.0
 					* this->TopBorderOffset, 0.0);
-
-/*	double d;
-	double *xL =
-			axis->GetPositionCoordinate()-> GetComputedWorldValue(viewport);
-	double *xR = axis->GetPosition2Coordinate()-> GetComputedWorldValue(
-			viewport);
-	d = sqrt(vtkMath::Distance2BetweenPoints(xL, xR));
-	axis->SetRange(-d / 2.0, d / 2.0);*/
 }
 
 void ScaleActor::PrintSelf(ostream& os, vtkIndent indent) {
