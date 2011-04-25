@@ -16,7 +16,8 @@
 #include <vtkTransform.h>
 #include <vtkActor.h>
 #include <vtkCamera.h>
-#include <vtkActorCollection.h>
+#include <vtkPNGWriter.h>
+#include <vtkWindowToImageFilter.h>
 
 #include <vector>
 
@@ -85,6 +86,7 @@ protected slots:
 	virtual void slotAttitude();
 	virtual void slotGroundPlane();
 	virtual void slotOrigin();
+	virtual void slotScreenshot();
 
 private:
 	vtkMutexLock* renderLock;
@@ -96,6 +98,8 @@ private:
 	vtkSmartPointer<vtkCamera> camera;
 
 	vtkSmartPointer<vtkActor> groundPlaneActor;
+	vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter;
+	vtkSmartPointer<vtkPNGWriter> imageWriter;
 
 	vtkSmartPointer<vtkAxesActor> axesActor;
 	vtkMutexLock* framesLock;

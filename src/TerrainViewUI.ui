@@ -52,6 +52,7 @@
     </property>
     <addaction name="actionConnect"/>
     <addaction name="actionQuit"/>
+    <addaction name="actionScreenshot"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -161,6 +162,11 @@
    </property>
    <property name="text">
     <string>&amp;Origin</string>
+   </property>
+  </action>
+  <action name="actionScreenshot">
+   <property name="text">
+    <string>&amp;Take a screenshot</string>
    </property>
   </action>
  </widget>

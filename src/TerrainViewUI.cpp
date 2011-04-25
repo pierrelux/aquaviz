@@ -52,6 +52,16 @@ TerrainView::TerrainView() {
 	camera->SetPosition(-4, 0, 1.0);
 	camera->SetViewUp(0, 0, 1);
 
+	  // Screenshot
+	windowToImageFilter = vtkSmartPointer<vtkWindowToImageFilter>::New();
+	windowToImageFilter->SetInput(this->ui->qvtkWidget->GetRenderWindow());
+	windowToImageFilter->SetMagnification(3);
+	windowToImageFilter->SetInputBufferTypeToRGBA();
+
+	imageWriter = vtkSmartPointer<vtkPNGWriter>::New();
+	imageWriter->SetFileName("terrain.png");
+	imageWriter->SetInput(windowToImageFilter->GetOutput());
+
 	// VTK Renderer
 	renderer = vtkSmartPointer<vtkRenderer>::New();
 	renderer->AddActor(robotActor);
@@ -94,6 +104,7 @@ TerrainView::TerrainView() {
 	connect(this->ui->actionAttitude, SIGNAL(triggered()), this, SLOT(slotAttitude()));
 	connect(this->ui->actionGroundPlane, SIGNAL(triggered()), this, SLOT(slotGroundPlane()));
 	connect(this->ui->actionOrigin, SIGNAL(triggered()), this, SLOT(slotOrigin()));
+	connect(this->ui->actionScreenshot, SIGNAL(triggered()), this, SLOT(slotScreenshot()));
 }
 
 void TerrainView::slotExit() {
@@ -162,6 +173,12 @@ void TerrainView::slotOrigin()
 	} else {
 		axesActor->SetVisibility(0);
 	}
+}
+
+void TerrainView::slotScreenshot()
+{
+	windowToImageFilter->Update();
+	imageWriter->Write();
 }
 
 vtkSmartPointer<vtkActor> TerrainView::createGroundPlane() {

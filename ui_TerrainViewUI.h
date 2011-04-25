@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'TerrainViewUI.ui'
 **
-** Created: Sun Apr 24 14:25:47 2011
+** Created: Sun Apr 24 14:50:49 2011
 **      by: Qt User Interface Compiler version 4.7.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -41,6 +41,7 @@ public:
     QAction *actionFrame;
     QAction *actionGroundPlane;
     QAction *actionOrigin;
+    QAction *actionScreenshot;
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout_2;
     QVBoxLayout *verticalLayout;
@@ -90,6 +91,8 @@ public:
         actionOrigin = new QAction(TerrainView);
         actionOrigin->setObjectName(QString::fromUtf8("actionOrigin"));
         actionOrigin->setCheckable(true);
+        actionScreenshot = new QAction(TerrainView);
+        actionScreenshot->setObjectName(QString::fromUtf8("actionScreenshot"));
         centralwidget = new QWidget(TerrainView);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         verticalLayout_2 = new QVBoxLayout(centralwidget);
@@ -131,6 +134,7 @@ public:
         menuBar->addAction(menuHelp->menuAction());
         menuFile->addAction(actionConnect);
         menuFile->addAction(actionQuit);
+        menuFile->addAction(actionScreenshot);
         menuHelp->addAction(actionAbout);
         menuView->addAction(actionAttitude);
         menuView->addAction(actionFrame);
@@ -159,6 +163,7 @@ public:
         actionFrame->setText(QApplication::translate("TerrainView", "&Frames Trace", 0, QApplication::UnicodeUTF8));
         actionGroundPlane->setText(QApplication::translate("TerrainView", "&Ground Plane", 0, QApplication::UnicodeUTF8));
         actionOrigin->setText(QApplication::translate("TerrainView", "&Origin", 0, QApplication::UnicodeUTF8));
+        actionScreenshot->setText(QApplication::translate("TerrainView", "&Take a screenshot", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("TerrainView", "&File", 0, QApplication::UnicodeUTF8));
         menuHelp->setTitle(QApplication::translate("TerrainView", "&Help", 0, QApplication::UnicodeUTF8));
         menuView->setTitle(QApplication::translate("TerrainView", "&View", 0, QApplication::UnicodeUTF8));

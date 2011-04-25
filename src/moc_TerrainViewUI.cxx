@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'TerrainViewUI.h'
 **
-** Created: Sun Apr 24 14:25:34 2011
+** Created: Sun Apr 24 14:54:33 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_TerrainView[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-       7,   14, // methods
+       8,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -38,6 +38,7 @@ static const uint qt_meta_data_TerrainView[] = {
       64,   12,   12,   12, 0x09,
       79,   12,   12,   12, 0x09,
       97,   12,   12,   12, 0x09,
+     110,   12,   12,   12, 0x09,
 
        0        // eod
 };
@@ -46,6 +47,7 @@ static const char qt_meta_stringdata_TerrainView[] = {
     "TerrainView\0\0slotExit()\0slotConnect()\0"
     "slotTerrain()\0slotFrame()\0slotAttitude()\0"
     "slotGroundPlane()\0slotOrigin()\0"
+    "slotScreenshot()\0"
 };
 
 const QMetaObject TerrainView::staticMetaObject = {
@@ -84,9 +86,10 @@ int TerrainView::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 4: slotAttitude(); break;
         case 5: slotGroundPlane(); break;
         case 6: slotOrigin(); break;
+        case 7: slotScreenshot(); break;
         default: ;
         }
-        _id -= 7;
+        _id -= 8;
     }
     return _id;
 }
