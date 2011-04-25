@@ -5,20 +5,20 @@
 #include "util/RotationMatrix3x3To4x4.h"
 #include "util/Quaternion.h"
 
+#include <qinputdialog.h>
+
+#include <vtkMath.h>
+#include <vtkCommand.h>
 #include <vtkRenderer.h>
-#include <vtkCubeSource.h>
+#include <vtkProperty.h>
+#include <vtkMatrix4x4.h>
+#include <vtkAxesActor.h>
+#include <vtkTransform.h>
+#include <vtkAxisActor2D.h>
+#include <vtkPlaneSource.h>
 #include <vtkRenderWindow.h>
 #include <vtkSmartPointer.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkCamera.h>
-#include <qinputdialog.h>
-#include <vtkProperty.h>
-#include <vtkPlaneSource.h>
-#include <vtkMath.h>
-#include <vtkMatrix4x4.h>
-#include <vtkAxesActor.h>
-#include <vtkAxisActor2D.h>
-#include <vtkCommand.h>
 #include <vtkInteractorStyleJoystickCamera.h>
 
 // Constructor

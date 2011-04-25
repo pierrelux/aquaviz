@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'TerrainViewUI.ui'
 **
-** Created: Sun Apr 24 14:50:30 2011
+** Created: Sun Apr 24 21:05:21 2011
 **      by: Qt User Interface Compiler version 4.7.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -70,6 +70,7 @@ public:
         actionSave->setObjectName(QString::fromUtf8("actionSave"));
         actionConnect = new QAction(TerrainView);
         actionConnect->setObjectName(QString::fromUtf8("actionConnect"));
+        actionConnect->setVisible(false);
         actionQuit = new QAction(TerrainView);
         actionQuit->setObjectName(QString::fromUtf8("actionQuit"));
         actionAbout = new QAction(TerrainView);
@@ -133,8 +134,8 @@ public:
         menuBar->addAction(menuView->menuAction());
         menuBar->addAction(menuHelp->menuAction());
         menuFile->addAction(actionConnect);
-        menuFile->addAction(actionQuit);
         menuFile->addAction(actionScreenshot);
+        menuFile->addAction(actionQuit);
         menuHelp->addAction(actionAbout);
         menuView->addAction(actionAttitude);
         menuView->addAction(actionFrame);

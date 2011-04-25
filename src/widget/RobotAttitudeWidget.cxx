@@ -57,7 +57,6 @@ RobotAttitudeWidget::~RobotAttitudeWidget() {
 }
 
 void RobotAttitudeWidget::SetEnabled(int enabling) {
-	std::cerr << "Enabling " << enabling << std::endl;
 	if (enabling) {
 		if (!this->CurrentRenderer) {
 			this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(

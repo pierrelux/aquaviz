@@ -35,8 +35,6 @@ TerrainActor::TerrainActor() {
 	this->polyMapper->SetInputConnection(this->delaunay->GetOutputPort());
 
 	this->SetMapper(this->polyMapper);
-
-	std::cerr << "TerrainActor created" << std::endl;
 }
 
 TerrainActor::~TerrainActor() {
@@ -54,7 +52,6 @@ void TerrainActor::PrintSelf(ostream& os, vtkIndent indent) {
 }
 
 int TerrainActor::RenderOpaqueGeometry(vtkViewport *vp) {
-	std::cerr << "RenderOpaqueGeometry" << std::endl;
 	if (!this->Mapper) {
 		return 0;
 	}
@@ -73,8 +70,6 @@ int TerrainActor::RenderOpaqueGeometry(vtkViewport *vp) {
 }
 
 int TerrainActor::RenderTranslucentGeometry(vtkViewport *vp) {
-	std::cerr << "RenderTranslucentGeometry" << std::endl;
-
 	if (!this->Mapper) {
 		return 0;
 	}
@@ -94,14 +89,12 @@ int TerrainActor::RenderTranslucentGeometry(vtkViewport *vp) {
 
 void TerrainActor::Render(vtkRenderer* renderer)
 {
-	std::cerr << "Rendering " << std::endl;
 	this->delaunay->Modified();
 	this->Property->Render(this, renderer);
 	this->polyMapper->Render(renderer, this);
 }
 
 void TerrainActor::ShallowCopy(vtkProp *prop) {
-	// Now do superclass
 	this->vtkActor::ShallowCopy(prop);
 }
 
@@ -116,9 +109,7 @@ unsigned long TerrainActor::GetRedrawMTime() {
 
 void TerrainActor::insertPoint(double x, double y, double z)
 {
-	//std::cout << "M time before " << this->points->GetMTime() << std::endl;
 	this->points->InsertNextPoint(x, y, z);
 	this->points->Modified();
-	//std::cout << "M time after " << this->points->GetMTime() << std::endl;
 }
 

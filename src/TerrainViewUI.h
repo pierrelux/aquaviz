@@ -6,22 +6,19 @@
 #include "widget/TerrainActor.h"
 #include "widget/RobotAttitudeWidget.h"
 
-#include "vtkSmartPointer.h"
-#include <vtkPoints.h>
-#include <vtkMath.h>
-#include <vtkMutexLock.h>
-#include <vtkCommand.h>
-#include <vtkPolyData.h>
-#include <vtkRenderWindow.h>
-#include <vtkTransform.h>
-#include <vtkActor.h>
-#include <vtkCamera.h>
-#include <vtkPNGWriter.h>
-#include <vtkWindowToImageFilter.h>
-
 #include <vector>
 
 #include <QMainWindow>
+
+#include <vtkActor.h>
+#include <vtkCamera.h>
+#include <vtkPoints.h>
+#include <vtkCommand.h>
+#include <vtkPNGWriter.h>
+#include <vtkMutexLock.h>
+#include <vtkRenderWindow.h>
+#include <vtkSmartPointer.h>
+#include <vtkWindowToImageFilter.h>
 
 // Forward Qt class declarations
 class Ui_TerrainView;
@@ -30,12 +27,8 @@ class Quaternion;
 class TerrainView: public QMainWindow {
 Q_OBJECT
 public:
-
-	// Constructor/Destructor
 	TerrainView();
-	~TerrainView() {
-	}
-	;
+	~TerrainView() {};
 
 	/**
 	 * Insert a new point
@@ -65,19 +58,6 @@ public:
 	 */
 	void setIMUPosition(double x, double y, double z);
 
-	/**
-	 * Clear the vertices
-	 * @postcondition The set of vertices will be cleared.
-	 */
-	void clear();
-
-	/**
-	 * Flush the points to the display.
-	 * @postcondition The triangulation will be computed from the
-	 * set of points and the rendering thread will render the triangulation.
-	 */
-	void flush();
-
 protected slots:
 	virtual void slotExit();
 	virtual void slotConnect();
@@ -91,19 +71,19 @@ protected slots:
 private:
 	vtkMutexLock* renderLock;
 
+	vtkSmartPointer<vtkCamera> camera;
+	vtkSmartPointer<vtkRenderer> renderer;
 	vtkSmartPointer<RobotActor> robotActor;
 	vtkSmartPointer<TerrainActor> terrainActor;
 	vtkSmartPointer<RobotAttitudeWidget> robotAttitudeWidget;
-	vtkSmartPointer<vtkRenderer> renderer;
-	vtkSmartPointer<vtkCamera> camera;
 
+	vtkSmartPointer<vtkPNGWriter> imageWriter;
 	vtkSmartPointer<vtkActor> groundPlaneActor;
 	vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter;
-	vtkSmartPointer<vtkPNGWriter> imageWriter;
 
-	vtkSmartPointer<vtkAxesActor> axesActor;
 	vtkMutexLock* framesLock;
 	std::vector<vtkAxesActor*> frames;
+	vtkSmartPointer<vtkAxesActor> axesActor;
 
 	// Designer form
 	Ui_TerrainView *ui;
@@ -137,8 +117,19 @@ private:
 	 */
 	vtkSmartPointer<vtkActor> createGroundPlane();
 
+	/**
+	 * Set visibility on all the frames rendered so far.
+	 * @param v Visibility : 0 invisible, 1 visible.
+	 */
 	void setFramesVisibility(int v);
 
+	/**
+	 * Create a new axes actor.
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @param w
+	 */
 	void plotFrame(double x, double y, double z, double w);
 };
 
