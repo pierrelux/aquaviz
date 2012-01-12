@@ -1,3 +1,6 @@
+/**
+ * @author Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
+ */
 #ifndef ROBOTATTITUDEWIDGET_H__
 #define ROBOTATTITUDEWIDGET_H__
 

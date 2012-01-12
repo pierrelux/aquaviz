@@ -1,3 +1,6 @@
+/**
+ * @author Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
+ */
 #include "RobotActor.h"
 
 // FIXME : Should not have relative paths

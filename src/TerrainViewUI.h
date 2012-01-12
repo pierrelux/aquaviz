@@ -1,7 +1,10 @@
+/**
+ * @author Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
+ */
 #ifndef TerrainViewUI_H
 #define TerrainViewUI_H
 
-#include "widget/ScaleActor.h"
+#include "widget/ElevationWidget.h"
 #include "widget/RobotActor.h"
 #include "widget/TerrainActor.h"
 #include "widget/RobotAttitudeWidget.h"
@@ -84,6 +87,8 @@ private:
 	vtkMutexLock* framesLock;
 	std::vector<vtkAxesActor*> frames;
 	vtkSmartPointer<vtkAxesActor> axesActor;
+
+	vtkSmartPointer<ElevationWidget> scale;
 
 	// Designer form
 	Ui_TerrainView *ui;

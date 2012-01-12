@@ -1,8 +1,5 @@
-/*
- * QuaternionToRotationMatrix.h
- *
- *  Created on: 2011-03-23
- *      Author: Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
+/**
+ * @author Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
  */
 
 #ifndef QUATERNIONTOROTATIONMATRIX_H_

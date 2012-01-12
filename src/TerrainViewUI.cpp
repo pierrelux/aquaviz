@@ -1,3 +1,6 @@
+/**
+ * @author Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
+ */
 #include "ui_TerrainViewUI.h"
 #include "TerrainViewUI.h"
 
@@ -45,7 +48,7 @@ TerrainView::TerrainView() {
 	axesActor->SetZAxisLabelText("Z Origin");
 	axesActor->SetVisibility(0);
 
-	vtkSmartPointer<ScaleActor> scale = vtkSmartPointer<ScaleActor>::New();
+	scale = vtkSmartPointer<ElevationWidget>::New();
 
 	// Create camera for renderer
 	camera = vtkSmartPointer<vtkCamera>::New();
@@ -68,7 +71,7 @@ TerrainView::TerrainView() {
 	renderer->AddActor(terrainActor);
 	renderer->AddActor(groundPlaneActor);
 	renderer->AddActor(axesActor);
-	renderer->AddActor(scale);
+	//renderer->AddActor(scale);
 
 	renderer->SetBackground(.5, .5, 1.0);
 	renderer->SetActiveCamera(camera);
@@ -262,6 +265,7 @@ void TerrainView::setIMURotation(double x, double y, double z, double w) {
 void TerrainView::setIMUPosition(double x, double y, double z) {
 	renderLock->Lock();
 	robotActor->setIMUPosition(x,y,z);
+	scale->setElevation(z);
 	renderLock->Unlock();
 }
 

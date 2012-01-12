@@ -1,10 +1,6 @@
-/*
- * LandMarkParser.cpp
- *
- *  Created on: 2011-02-20
- *      Author: pierre-luc
+/**
+ * @author Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
  */
-
 #include "LandmarkParser.h"
 #include <iostream>
 #include <fstream>

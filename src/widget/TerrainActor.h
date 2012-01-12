@@ -1,8 +1,5 @@
-/*
- * TerrainActor.h
- *
- *  Created on: 2011-04-17
- *      Author: pierre-luc
+/**
+ * @author Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
  */
 
 #ifndef TERRAINACTOR_H_

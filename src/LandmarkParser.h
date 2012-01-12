@@ -1,8 +1,5 @@
-/*
- * LandMarkParser.h
- *
- *  Created on: 2011-02-20
- *      Author: pierre-luc
+/**
+ * @author Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
  */
 
 #ifndef LANDMARKPARSER_H_

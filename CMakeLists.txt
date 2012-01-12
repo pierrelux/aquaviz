@@ -35,15 +35,14 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
-rosbuild_add_executable(talker src/ImuEstimator.cpp
+rosbuild_add_executable(replay src/ImuEstimator.cpp
                                src/LandmarkParser.h
                                src/LandmarkParser.cpp
                                src/PoseParser.h
                                src/PoseParser.cpp)
                                
 SET(TerrainViewSrcs src/TerrainVisualization.cpp 
-                    src/TerrainViewUI.cpp
-                    src/RosIMUSubscriberNode.cpp)
+                    src/TerrainViewUI.cpp)
                     
 SET(TerrainViewUI src/TerrainViewUI.ui)
 
@@ -53,10 +52,10 @@ QT4_WRAP_UI(UISrcs ${TerrainViewUI})
 QT4_WRAP_CPP(MOCSrcs ${TerrainViewHeaders} )
 
 SET(Widgets_sources  src/widget/RobotAttitudeWidget.cxx
-                     src/widget/ScaleActor.cxx
+                     src/widget/ElevationWidget.cxx
                      src/widget/TerrainActor.cxx
                      src/widget/RobotActor.cxx)
 
 ADD_LIBRARY(CustomWidgets STATIC ${Widgets_sources})
-rosbuild_add_executable(listener ${TerrainViewSrcs} ${UISrcs} ${MOCSrcs})
-TARGET_LINK_LIBRARIES( listener QVTK CustomWidgets vtkHybrid vtkRendering)
+rosbuild_add_executable(visualization ${TerrainViewSrcs} ${UISrcs} ${MOCSrcs})
+TARGET_LINK_LIBRARIES( visualization QVTK CustomWidgets vtkHybrid vtkRendering)

@@ -1,10 +1,6 @@
-/*
- * TerrainActor.cpp
- *
- *  Created on: 2011-04-17
- *      Author: pierre-luc
+/**
+ * @author Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
  */
-
 #include "TerrainActor.h"
 
 #include <vtkObjectFactory.h>

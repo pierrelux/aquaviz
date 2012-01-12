@@ -1,8 +1,5 @@
-/*
- * RobotActor.h
- *
- *  Created on: 2011-04-17
- *      Author: pierre-luc
+/**
+ * @author Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
  */
 
 #ifndef ROBOTACTOR_H_

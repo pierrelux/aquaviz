@@ -1,3 +1,6 @@
+/**
+ * @author Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
+ */
 #include "RobotAttitudeWidget.h"
 
 #include "../util/QuaternionToRotationMatrix.h"

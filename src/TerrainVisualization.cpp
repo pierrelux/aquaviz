@@ -1,3 +1,6 @@
+/**
+ * @author Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
+ */
 #include <QApplication>
 #include "TerrainViewUI.h"
 

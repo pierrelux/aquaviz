@@ -1,10 +1,6 @@
-/*
- * PoseParser.cpp
- *
- *  Created on: 2011-02-21
- *      Author: pierre-luc
+/**
+ * @author Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
  */
-
 #include "PoseParser.h"
 #include <iostream>
 #include <fstream>

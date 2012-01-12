@@ -1,3 +1,6 @@
+/**
+ * @author Pierre-Luc Bacon <pbacon@cim.mcgill.ca>
+ */
 #include "LandmarkParser.h"
 #include "PoseParser.h"
 
